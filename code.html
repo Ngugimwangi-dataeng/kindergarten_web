@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Mobile Attendance & Care - Sunflower Academy</title>
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #0f4c81;
+            --primary-light: #eff6ff;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+            --warning: #d97706;
+            --warning-light: #fef3c7;
+            --surface: #f8fafc;
+            --card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--surface);
+            color: var(--text-main);
+            padding-bottom: 90px;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 40;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .header-title h1 { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
+        .header-title p { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .user-tag { background: #f1f5f9; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: #475569; }
+
+        .banner-stats {
+            padding: 12px 16px;
+            display: flex;
+            gap: 10px;
+        }
+        .stat-badge {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+        .stat-badge.active {
+            background: #0f4c81;
+            color: #ffffff;
+            border-color: #0f4c81;
+        }
+        .stat-num { font-size: 1.4rem; font-weight: 800; display: block; line-height: 1.1; }
+        .stat-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+
+        .search-bar-wrap {
+            padding: 0 16px 12px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2364748b' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") no-repeat 12px center / 18px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .roster-container {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .child-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.03);
+        }
+        .child-card.urgent {
+            border-color: #f59e0b;
+            background: #fffdf5;
+        }
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .child-identity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .avatar-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #0f4c81;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+        }
+        .child-name { font-size: 1rem; font-weight: 800; color: #0f172a; }
+        .status-chip {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .status-chip.in { background: var(--success-light); color: var(--success); }
+        .status-chip.out { background: #f1f5f9; color: #64748b; }
+        .status-chip.alert { background: #fef3c7; color: #b45309; }
+
+        .tag-pill {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .tag-allergy { background: #fee2e2; color: #b91c1c; }
+
+        .meta-line {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+        .btn-in { background: #16a34a; color: white; }
+        .btn-out { background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; }
+        .btn-verify { background: #0f4c81; color: white; }
+        .btn-urgent { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+
+        .quick-care-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+        }
+        .care-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 6px 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* Floating Emergency FAB */
+        .fab-alert {
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #dc2626;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
+            cursor: pointer;
+            z-index: 50;
+            border: none;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 60;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-title">
+            <h1>Sunflower Academy</h1>
+            <p>Toddler Room B • Staff: {{ username }}</p>
+        </div>
+        <a href="/logout" class="user-tag" style="text-decoration:none;">Exit 🚪</a>
+    </header>
+
+    <!-- Roster Overview Metrics -->
+    <div class="banner-stats">
+        <div class="stat-badge active">
+            <span class="stat-num">{{ stats.present }}</span>
+            <span class="stat-label">Present Now</span>
+        </div>
+        <div class="stat-badge">
+            <span class="stat-num">{{ stats.absent }}</span>
+            <span class="stat-label">Expected Out</span>
+        </div>
+        <div class="stat-badge">
+            <span class="stat-num">1:4</span>
+            <span class="stat-label">Ratio (OK)</span>
+        </div>
+    </div>
+
+    <!-- Quick Child Filter Search -->
+    <div class="search-bar-wrap">
+        <input type="text" class="search-input" id="rosterSearch" placeholder="Search toddler by name or guardian..." onkeyup="filterRoster()">
+    </div>
+
+    <!-- Roster Child List -->
+    <main class="roster-container" id="rosterContainer">
+        {% for child in children %}
+        <div class="child-card {% if child.current_status == 'Urgent Alert' %}urgent{% endif %}" data-name="{{ child.first_name }} {{ child.last_name }}">
+            <div class="card-top">
+                <div class="child-identity">
+                    <div class="avatar-circle">{{ child.first_name[0] }}{{ child.last_name[0] }}</div>
+                    <div>
+                        <div class="child-name">{{ child.first_name }} {{ child.last_name }}</div>
+                        <div style="font-size:0.75rem; color:#64748b;">{{ child.room_name or 'Toddler Room B' }}</div>
+                    </div>
+                </div>
+                {% if child.current_status == 'Checked In' %}
+                    <span class="status-chip in">Present</span>
+                {% elif child.current_status == 'Urgent Alert' %}
+                    <span class="status-chip alert">🚨 Urgent Alert</span>
+                {% else %}
+                    <span class="status-chip out">Checked Out</span>
+                {% endif %}
+            </div>
+
+            {% if child.allergy_info %}
+                <div class="tag-pill tag-allergy">⚠️ {{ child.allergy_info }}</div>
+            {% endif %}
+
+            <div class="meta-line">
+                <span>Guardian:</span>
+                <strong>{{ child.primary_guardian or child.parent_first_name ~ ' ' ~ child.parent_last_name }}</strong>
+            </div>
+
+            <!-- Attendance Action Row -->
+            <div class="action-row">
+                {% if child.current_status == 'Checked In' %}
+                    <button type="button" class="btn btn-verify" onclick="openVerificationModal('{{ child.id }}', '{{ child.first_name }} {{ child.last_name }}')">
+                        Verify Pick-Up
+                    </button>
+                    <form action="/trigger-emergency" method="POST" style="margin:0;">
+                        <input type="hidden" name="child_id" value="{{ child.id }}">
+                        <button type="submit" class="btn btn-urgent" onclick="return confirm('Deploy emergency broadcast to parent?');">
+                            🚨 Alert
+                        </button>
+                    </form>
+                {% else %}
+                    <form action="/update-status" method="POST" style="grid-column: span 2; margin:0;">
+                        <input type="hidden" name="child_id" value="{{ child.id }}">
+                        <input type="hidden" name="action" value="Check In">
+                        <button type="submit" class="btn btn-in" style="width:100%;">
+                            Check In Child
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <!-- Rapid Care Milestones -->
+            <div class="quick-care-grid">
+                <button type="button" class="care-btn" onclick="quickLog('{{ child.id }}', 'nap', 'Nap Time', '1.5 hrs rest')">
+                    <span>🛏️</span> Nap
+                </button>
+                <button type="button" class="care-btn" onclick="quickLog('{{ child.id }}', 'meal', 'Lunch & Snack', '100% finished')">
+                    <span>🥣</span> Meal
+                </button>
+                <button type="button" class="care-btn" onclick="quickLog('{{ child.id }}', 'diaper', 'Diaper Check', 'Clean & Dry')">
+                    <span>🚼</span> Diaper
+                </button>
+                <button type="button" class="care-btn" onclick="quickLog('{{ child.id }}', 'incident', 'Minor Incident', 'Scraped knee, cleaned')">
+                    <span>🩹</span> Incident
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </main>
+
+    <!-- Modal: Guardian Pickup Verification -->
+    <div class="modal" id="verificationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalChildName" style="color:#0f4c81; font-size:1.1rem;">Verify Guardian Pickup</h3>
+                <button class="modal-close" onclick="closeVerificationModal()">&times;</button>
+            </div>
+            <form action="/verify-pickup-checkout" method="POST">
+                <input type="hidden" id="modalChildId" name="child_id">
+                
+                <p style="font-size:0.85rem; color:#64748b; margin-bottom:12px;">Select verified guardian present with photo ID:</p>
+                
+                <div id="guardianOptions" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+                    <!-- Dynamically populated or fallback options -->
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Departure Notes (Optional):</label>
+                    <input type="text" name="departure_notes" placeholder="e.g. Grandma pickup authorized via app" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.85rem;">
+                </div>
+
+                <button type="submit" class="btn btn-in" style="width:100%; padding:12px; font-size:0.95rem;">
+                    Confirm Hand-Off & Notify Parent
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function filterRoster() {
+            const query = document.getElementById('rosterSearch').value.toLowerCase();
+            document.querySelectorAll('.child-card').forEach(card => {
+                const name = card.getAttribute('data-name').toLowerCase();
+                card.style.display = name.includes(query) ? 'block' : 'none';
+            });
+        }
+
+        function openVerificationModal(childId, childName) {
+            document.getElementById('modalChildId').value = childId;
+            document.getElementById('modalChildName').textContent = 'Verify Pick-Up: ' + childName;
+            
+            const container = document.getElementById('guardianOptions');
+            container.innerHTML = '<p style="font-size:0.8rem; color:#64748b;">Loading authorized guardians...</p>';
+
+            fetch('/child/' + childId + '/guardians')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.guardians && data.guardians.length > 0) {
+                        container.innerHTML = data.guardians.map((g, idx) => `
+                            <label style="display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer;">
+                                <input type="radio" name="guardian_id" value="${g.id}" ${idx === 0 ? 'checked' : ''} required>
+                                <div>
+                                    <strong style="display:block; font-size:0.85rem; color:#0f172a;">${g.full_name} (${g.relationship})</strong>
+                                    <span style="font-size:0.75rem; color:#64748b;">Phone: ${g.phone_number} • ID: ${g.government_id_type || 'State ID'}</span>
+                                </div>
+                            </label>
+                        `).join('');
+                    } else {
+                        container.innerHTML = `
+                            <label style="display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #cbd5e1; border-radius:8px;">
+                                <input type="radio" name="guardian_id" value="1" checked required>
+                                <div>
+                                    <strong style="display:block; font-size:0.85rem;">Primary Registered Parent</strong>
+                                    <span style="font-size:0.75rem; color:#64748b;">Photo & Government ID Verified</span>
+                                </div>
+                            </label>
+                        `;
+                    }
+                })
+                .catch(() => {
+                    container.innerHTML = `
+                        <label style="display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #cbd5e1; border-radius:8px;">
+                            <input type="radio" name="guardian_id" value="1" checked required>
+                            <div>
+                                <strong style="display:block; font-size:0.85rem;">Primary Registered Parent</strong>
+                                <span style="font-size:0.75rem; color:#64748b;">Photo & Government ID Verified</span>
+                            </div>
+                        </label>
+                    `;
+                });
+
+            document.getElementById('verificationModal').style.display = 'flex';
+        }
+
+        function closeVerificationModal() {
+            document.getElementById('verificationModal').style.display = 'none';
+        }
+
+        function quickLog(childId, category, title, metric) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/log-care-activity';
+            
+            const inputs = {
+                child_id: childId,
+                category: category,
+                title: title,
+                metric_value: metric,
+                details: 'Routine care logged on floor by ' + '{{ username }}',
+                notify_parent: 'false'
+            };
+
+            for (const key in inputs) {
+                const hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = key;
+                hiddenField.value = inputs[key];
+                form.appendChild(hiddenField);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>

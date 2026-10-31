@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daycare Administration & Safety Operations Hub</title>
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #0f4c81;
+            --primary-dark: #00355f;
+            --primary-light: #eff4ff;
+            --surface-bg: #f8f9ff;
+            --card-bg: #ffffff;
+            --text-heading: #0b1c30;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --sky: #0284c7;
+            --sky-light: #e0f2fe;
+            --email-purple: #7c3aed;
+            --email-light: #f5f3ff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--surface-bg);
+            margin: 0;
+            color: var(--text-body);
+        }
+        h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .app-shell { display: flex; min-height: 100vh; }
+        
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-right: 1px solid var(--border-color);
+            padding: 24px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .brand-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+        .brand-logo h2 { font-size: 1.15rem; font-weight: 800; color: var(--primary); margin: 0; }
+        .ratio-pill { background: var(--success-light); color: #047857; font-size: 0.72rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; }
+
+        .nav-links { display: flex; flex-direction: column; gap: 6px; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+        .nav-item:hover:not(.active) { background: #f1f5f9; color: var(--text-heading); }
+
+        /* Main Content Workspace */
+        .main-content { flex: 1; padding: 28px 36px; overflow-y: auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .top-bar h1 { font-size: 1.6rem; font-weight: 800; color: var(--text-heading); margin: 0; }
+
+        /* Gateway Health Pill in Header */
+        .channel-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-sms { background: var(--sky); }
+        .dot-email { background: var(--email-purple); }
+
+        /* Stat Metrics Row */
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px 20px;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.03);
+        }
+        .metric-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        .metric-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text-heading); margin-top: 4px; display: block; }
+        .metric-sub { font-size: 0.75rem; color: #16a34a; font-weight: 600; }
+
+        /* Two-Column Layout: Roster & Care Activity Feed */
+        .layout-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+
+        /* Children Roster Table & Cards */
+        .roster-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 22px; }
+        .roster-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .roster-card-header h3 { font-size: 1.15rem; font-weight: 800; margin: 0; color: var(--text-heading); }
+
+        .child-item {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .child-item:hover { transform: translateY(-1px); border-color: #cbd5e1; }
+        .child-info-block { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Plus Jakarta Sans'; }
+        .child-title { font-size: 0.95rem; font-weight: 700; color: var(--text-heading); font-family: 'Plus Jakarta Sans'; }
+        
+        .badge { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+        .badge-in { background: var(--success-light); color: #065f46; }
+        .badge-out { background: #f1f5f9; color: #64748b; }
+        .badge-allergy { background: var(--danger-light); color: #991b1b; margin-left: 6px; }
+        .badge-chan-sms { background: var(--sky-light); color: #0369a1; }
+        .badge-chan-email { background: var(--email-light); color: var(--email-purple); }
+        .badge-chan-both { background: #e0e7ff; color: #3730a3; }
+
+        .btn-group { display: flex; align-items: center; gap: 8px; }
+        .btn { padding: 8px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; border: none; cursor: pointer; text-decoration: none; font-family: inherit; }
+        .btn-checkin { background: #16a34a; color: white; }
+        .btn-checkout { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+        .btn-alert { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+        /* Care Activity Stream */
+        .feed-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 22px; }
+        .feed-item { border-left: 3px solid var(--primary); padding-left: 12px; margin-bottom: 14px; }
+        .feed-item.email-log { border-left-color: var(--email-purple); }
+        .feed-item.sms-log { border-left-color: var(--sky); }
+        .feed-title { font-size: 0.85rem; font-weight: 700; color: var(--text-heading); }
+        .feed-meta { font-size: 0.72rem; color: var(--text-muted); }
+        .feed-body { font-size: 0.8rem; color: var(--text-body); margin-top: 4px; }
+
+        /* Administrative Forms */
+        .form-section { background: #ffffff; border: 1px solid var(--border-color); border-radius: 14px; padding: 22px; margin-top: 24px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .form-grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.85rem; }
+
+        @media (max-width: 900px) {
+            .app-shell { flex-direction: column; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .layout-grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+            .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-shell">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div>
+            <div class="brand-logo">
+                <span class="material-symbols-outlined" style="color:var(--primary); font-size:2rem;">school</span>
+                <div>
+                    <h2>Sunflower Daycare</h2>
+                    <span class="ratio-pill">Ratio: 1:4 Compliant</span>
+                </div>
+            </div>
+            <nav class="nav-links">
+                <a href="/dashboard" class="nav-item active">
+                    <span class="material-symbols-outlined" style="font-size:18px;">dashboard</span> Administration Hub
+                </a>
+                <a href="/teacher-dashboard" class="nav-item">
+                    <span class="material-symbols-outlined" style="font-size:18px;">phone_android</span> Teacher Floor App
+                </a>
+                <a href="#onboardSection" class="nav-item">
+                    <span class="material-symbols-outlined" style="font-size:18px;">person_add</span> Onboard Family
+                </a>
+                <a href="#messageLogsSection" class="nav-item">
+                    <span class="material-symbols-outlined" style="font-size:18px;">mail</span> SMS & Email Logs
+                </a>
+                <a href="#teacherSection" class="nav-item">
+                    <span class="material-symbols-outlined" style="font-size:18px;">badge</span> Teacher Accounts
+                </a>
+            </nav>
+        </div>
+        <div>
+            <div style="font-size:0.8rem; color:#64748b; margin-bottom:8px;">Signed in as <strong>{{ username or 'Admin' }}</strong></div>
+            <a href="/logout" class="btn btn-checkout" style="display:block; text-align:center;">Sign Out Securely 🚪</a>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div>
+                <h1>Daycare Operations Hub</h1>
+                <p style="color:#64748b; font-size:0.85rem; margin-top:2px;">Real-time attendance, allergy security & dual SMS + Email parent communication</p>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="channel-indicator">
+                    <span class="dot dot-sms"></span> Africa's Talking SMS Active
+                    <span class="dot dot-email" style="margin-left:6px;"></span> Email Gateway Active
+                </div>
+                <a href="/teacher-dashboard" class="btn btn-checkin" style="font-size:0.85rem;">Floor View</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                <div class="flash-message {{ category }}" style="border:1px solid; border-radius:8px; padding:10px 14px; margin-bottom:20px; font-size:0.85rem;">
+                    {{ msg }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Metric KPI Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-label">Enrolled Toddlers</span>
+                <span class="metric-value">{{ stats.total }}</span>
+                <span class="metric-sub">Cap: 30 licensed</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Currently Inside</span>
+                <span class="metric-value" style="color:#10b981;">{{ stats.present }}</span>
+                <span class="metric-sub">Verified in classroom</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Expected Out</span>
+                <span class="metric-value" style="color:#64748b;">{{ stats.absent }}</span>
+                <span class="metric-sub" style="color:#64748b;">Awaiting check-in</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Dual Dispatch Gateway</span>
+                <span class="metric-value" style="color:#0f4c81; font-size:1.6rem; margin-top:10px;">SMS + Email</span>
+                <span class="metric-sub" style="color:#7c3aed;">100% Free / Low Cost</span>
+            </div>
+        </div>
+
+        <!-- Layout Grid: Active Roster & Live Daily Care Activity -->
+        <div class="layout-grid">
+            <!-- Active Roster Panel -->
+            <section class="roster-card">
+                <div class="roster-card-header">
+                    <h3>Active Children Roster & Guardian Notifications</h3>
+                    <span style="font-size:0.8rem; color:#64748b;">Showing {{ children|length }} enrolled</span>
+                </div>
+
+                <div class="roster-list">
+                    {% for child in children %}
+                    <div class="child-item">
+                        <div class="child-info-block">
+                            <div class="avatar">{{ child.first_name[0] }}{{ child.last_name[0] }}</div>
+                            <div>
+                                <div class="child-title">
+                                    {{ child.first_name }} {{ child.last_name }}
+                                    {% if child.current_status == 'Checked In' %}
+                                        <span class="badge badge-in">Present</span>
+                                    {% elif child.current_status == 'Urgent Alert' %}
+                                        <span class="badge" style="background:#fef3c7; color:#b45309;">🚨 Alert</span>
+                                    {% else %}
+                                        <span class="badge badge-out">Checked Out</span>
+                                    {% endif %}
+
+                                    {% if child.allergy_info %}
+                                        <span class="badge badge-allergy">⚠️ {{ child.allergy_info }}</span>
+                                    {% endif %}
+
+                                    <!-- Preferred Channel Badge -->
+                                    {% if child.preferred_channel == 'Both' %}
+                                        <span class="badge badge-chan-both" title="Sends via Africa's Talking SMS + Email">📱+✉️ SMS & Email</span>
+                                    {% elif child.preferred_channel == 'Email' %}
+                                        <span class="badge badge-chan-email" title="Sends via Email">✉️ Email Only</span>
+                                    {% else %}
+                                        <span class="badge badge-chan-sms" title="Sends via SMS">📱 SMS Only</span>
+                                    {% endif %}
+                                </div>
+                                <div style="font-size:0.75rem; color:#64748b; margin-top:3px;">
+                                    Guardian: <strong>{{ child.primary_guardian or child.parent_first_name ~ ' ' ~ child.parent_last_name }}</strong> 
+                                    • Phone: {{ child.parent_phone }} 
+                                    {% if child.parent_email %}• Email: <span style="color:#0f4c81;">{{ child.parent_email }}</span>{% endif %}
+                                    • Room: {{ child.room_name or 'Toddler Room B' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            {% if child.current_status == 'Checked In' %}
+                                <button type="button" class="btn btn-checkout" onclick="openPickupModal('{{ child.id }}', '{{ child.first_name }} {{ child.last_name }}')">Check Out</button>
+                            {% else %}
+                                <form action="/update-status" method="POST" style="margin:0;">
+                                    <input type="hidden" name="child_id" value="{{ child.id }}">
+                                    <input type="hidden" name="action" value="Check In">
+                                    <button type="submit" class="btn btn-checkin">Check In</button>
+                                </form>
+                            {% endif %}
+
+                            <form action="/trigger-emergency" method="POST" style="margin:0;" onsubmit="return confirm('Deploy emergency broadcast via SMS and Email to this parent?');">
+                                <input type="hidden" name="child_id" value="{{ child.id }}">
+                                <button type="submit" class="btn btn-alert">🚨 Alert</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Care Activity & Multi-Channel Feed -->
+            <section class="feed-card">
+                <div class="roster-card-header">
+                    <h3>Care Milestones & Comms Stream</h3>
+                    <span style="font-size:0.75rem; color:#10b981; font-weight:700;">Live Feed</span>
+                </div>
+                <div>
+                    {% for care in care_logs %}
+                    <div class="feed-item">
+                        <div class="feed-title">{{ care.first_name }} - {{ care.title }}</div>
+                        <div class="feed-meta">{{ care.logged_at.strftime('%I:%M %p') }} • Logged by {{ care.teacher_username }}</div>
+                        <p class="feed-body">{{ care.details }}</p>
+                    </div>
+                    {% else %}
+                    <p style="font-size:0.8rem; color:#94a3b8;">No care milestones recorded yet today.</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <!-- Temporary authorized pickup access -->
+        <section class="form-section" id="oneTimePickupSection">
+            <h3 style="margin-top:0;font-size:1.1rem;color:var(--text-heading);">🔐 One-Time Authorized Pickup</h3>
+            <form action="{{ url_for('authorize_one_time_pickup') }}" method="POST">
+                <div class="form-grid-4">
+                    <select name="child_id" required class="form-control"><option value="">Select child</option>{% for child in children %}<option value="{{ child.id }}">{{ child.first_name }} {{ child.last_name }}</option>{% endfor %}</select>
+                    <input type="text" name="full_name" placeholder="Guardian full name" required class="form-control">
+                    <input type="text" name="relationship" placeholder="Relationship" required class="form-control">
+                    <input type="tel" name="phone_number" placeholder="Guardian phone (+254...)" required class="form-control">
+                </div>
+                <div class="form-grid-4" style="margin-top:12px;">
+                    <input type="email" name="email" placeholder="Guardian email (optional)" class="form-control">
+                    <select name="government_id_type" class="form-control"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driver License">Driver License</option></select>
+                    <input type="text" name="national_id_number" placeholder="National ID number" required class="form-control">
+                    <input type="url" name="photo_url" placeholder="Guardian photo URL (optional)" class="form-control">
+                </div>
+                <div class="form-grid-3" style="margin-top:12px;">
+                    <textarea name="notes" rows="2" placeholder="Verification notes or special instructions" class="form-control"></textarea>
+                    <select name="valid_hours" class="form-control"><option value="24">Valid 24 hours</option><option value="12">Valid 12 hours</option><option value="6">Valid 6 hours</option><option value="2">Valid 2 hours</option></select>
+                    <button type="submit" class="btn btn-checkin">Create One-Time Pickup</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Permanent authorized guardian registration -->
+        <section class="form-section" id="guardianSection">
+            <h3 style="margin-top:0;font-size:1.1rem;color:var(--text-heading);">👤 Register Authorized Guardian</h3>
+            <form action="{{ url_for('add_guardian') }}" method="POST">
+                <div class="form-grid-4">
+                    <select name="child_id" required class="form-control"><option value="">Select child</option>{% for child in children %}<option value="{{ child.id }}">{{ child.first_name }} {{ child.last_name }}</option>{% endfor %}</select>
+                    <input type="text" name="full_name" placeholder="Guardian full name" required class="form-control">
+                    <input type="text" name="relationship" placeholder="Relationship" required class="form-control">
+                    <input type="tel" name="phone_number" placeholder="Phone (+254...)" required class="form-control">
+                </div>
+                <div class="form-grid-4" style="margin-top:12px;">
+                    <input type="email" name="email" placeholder="Guardian email" class="form-control">
+                    <select name="government_id_type" class="form-control"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driver License">Driver License</option></select>
+                    <input type="text" name="national_id_number" placeholder="National ID number" required class="form-control">
+                    <input type="url" name="photo_url" placeholder="Guardian photo URL" class="form-control">
+                </div>
+                <div class="form-grid-3" style="margin-top:12px;">
+                    <textarea name="notes" rows="2" placeholder="Identification notes or special instructions" class="form-control"></textarea>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;"><input type="checkbox" name="id_verified" checked> ID verified by staff</label>
+                    <button type="submit" class="btn btn-checkin">Save Authorized Guardian</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Administrative Forms: Onboard with Dual SMS + Email Fields -->
+        <section class="form-section" id="onboardSection">
+            <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-heading);">👶 Onboard a New Family (Dual SMS + Email Enrollment)</h3>
+            <form action="/add-family" method="POST">
+                <div class="form-grid-3">
+                    <input type="text" name="child_first" placeholder="Child First Name" required class="form-control">
+                    <input type="text" name="child_last" placeholder="Child Last Name" required class="form-control">
+                    <input type="text" name="room_name" placeholder="Classroom (e.g. Toddler Room B)" value="Toddler Room B" class="form-control">
+                </div>
+                <div class="form-grid-4">
+                    <input type="text" name="parent_first" placeholder="Parent First Name" required class="form-control">
+                    <input type="text" name="parent_last" placeholder="Parent Last Name" required class="form-control">
+                    <input type="text" name="parent_phone" placeholder="Parent Phone (+254... for SMS)" required class="form-control">
+                    <input type="email" name="parent_email" placeholder="Parent Email (e.g. parent@gmail.com)" required class="form-control">
+                </div>
+                <div class="form-grid-3">
+                    <input type="text" name="allergy_info" placeholder="Medical / Allergy Notes (Optional)" class="form-control">
+                    <select name="preferred_channel" class="form-control" style="font-weight:600;">
+                        <option value="Both">Preferred Channel: Both SMS & Email (Recommended)</option>
+                        <option value="SMS">Preferred Channel: SMS Only (Africa's Talking)</option>
+                        <option value="Email">Preferred Channel: Email Only (Free / SMTP)</option>
+                    </select>
+                    <button type="submit" class="btn btn-checkin" style="padding:10px;">Save & Enroll Family</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Multi-Channel Message Logs Audit Section -->
+        <section class="form-section" id="messageLogsSection">
+            <div class="roster-card-header">
+                <h3 style="margin:0; font-size:1.1rem;">📨 Outbound Dispatch Logs (Africa's Talking SMS & Transactional Email)</h3>
+                <span style="font-size:0.75rem; color:#64748b;">Real-time Audit Trail</span>
+            </div>
+            <div style="max-height: 280px; overflow-y: auto; margin-top: 12px; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                {% for log in logs %}
+                <div class="feed-item {% if log.channel == 'Email' %}email-log{% else %}sms-log{% endif %}" style="margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #f1f5f9;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="font-size:0.85rem; color:var(--text-heading);">
+                            {% if log.channel == 'Email' %}
+                                ✉️ Email to {{ log.first_name }}'s Parent ({{ log.recipient_email }})
+                            {% else %}
+                                📱 SMS to {{ log.first_name }}'s Parent ({{ log.recipient_phone }})
+                            {% endif %}
+                        </strong>
+                        <span style="font-size:0.7rem; color:#64748b;">
+                            {{ log.received_at.strftime('%b %d, %I:%M %p') }} • 
+                            <span style="color:#059669; font-weight:700;">{{ log.delivery_status }}</span>
+                        </span>
+                    </div>
+                    {% if log.subject %}<div style="font-size:0.78rem; font-weight:600; color:#0f4c81; margin-top:2px;">Subject: {{ log.subject }}</div>{% endif %}
+                    <p class="feed-body" style="margin-top:2px;">{{ log.message_body }}</p>
+                </div>
+                {% else %}
+                <p style="font-size:0.8rem; color:#94a3b8; text-align:center; padding:12px;">No dispatched messages recorded yet today.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Teacher Accounts Management -->
+        <section class="form-section" id="teacherSection">
+            <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-heading);">👥 Create Teacher Floor Account</h3>
+            <form action="{{ url_for('add_teacher') }}" method="POST" style="display:flex; gap:12px; align-items:center;">
+                <input type="text" name="username" placeholder="Teacher Username" required class="form-control" style="flex:1;">
+                <input type="password" name="password" placeholder="Temporary Password (8+ chars)" minlength="8" required class="form-control" style="flex:1;">
+                <button type="submit" class="btn btn-checkin" style="padding:10px 18px;">Create Staff Login</button>
+            </form>
+        </section>
+    </main>
+</div>
+
+<div id="pickupModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+<form action="/verify-pickup-checkout" method="POST" style="background:white;border-radius:14px;width:min(460px,100%);padding:24px;">
+<h3 id="pickupModalTitle" style="margin-top:0;">Verified Pickup</h3>
+<input type="hidden" name="child_id" id="pickupChildId">
+<select id="pickupGuardian" name="guardian_id" required class="form-control" style="margin:8px 0;"></select>
+<div id="pickupPinGroup" style="display:none;"><input type="text" name="pickup_pin" inputmode="numeric" maxlength="6" placeholder="One-time 6-digit PIN" class="form-control"></div>
+<textarea name="departure_notes" rows="2" placeholder="Handoff notes (optional)" class="form-control" style="margin-top:8px;"></textarea>
+<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;"><button type="button" class="btn btn-checkout" onclick="closePickupModal()">Cancel</button><button type="submit" class="btn btn-checkin">Complete Pickup</button></div>
+</form></div>
+<script>
+const pickupModal=document.getElementById('pickupModal'), pickupGuardian=document.getElementById('pickupGuardian');
+async function openPickupModal(childId,childName){document.getElementById('pickupChildId').value=childId;document.getElementById('pickupModalTitle').textContent='Verified Pickup: '+childName;pickupModal.style.display='flex';const r=await fetch('/child/'+childId+'/guardians');const d=await r.json();pickupGuardian.innerHTML=d.guardians.map(g=>'<option value="'+g.id+'" data-one-time="'+(g.access_type==='One-Time')+'">'+g.full_name+' — '+g.relationship+'</option>').join('')||'<option value="">No authorized guardians</option>';updatePickupPin();}
+function updatePickupPin(){const o=pickupGuardian.options[pickupGuardian.selectedIndex];document.getElementById('pickupPinGroup').style.display=o&&o.dataset.oneTime==='true'?'block':'none';}
+pickupGuardian.addEventListener('change',updatePickupPin);function closePickupModal(){pickupModal.style.display='none';}
+</script>
+
+</body>
+</html>

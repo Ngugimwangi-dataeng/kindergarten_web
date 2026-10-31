@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kinfolk Care Portal - Leo Martinez Daily Feed</title>
+<!-- Google Fonts: Plus Jakarta Sans & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-fixed-dim": "#93ccff",
+            "outline-variant": "#c2c7d1",
+            "on-background": "#0b1c30",
+            "secondary-container": "#5bb8fe",
+            "secondary": "#006398",
+            "tertiary": "#003c27",
+            "on-tertiary": "#ffffff",
+            "primary-fixed": "#d2e4ff",
+            "surface-dim": "#cbdbf5",
+            "surface-bright": "#f8f9ff",
+            "error-container": "#ffdad6",
+            "on-tertiary-container": "#3dd197",
+            "on-tertiary-fixed-variant": "#005236",
+            "error": "#ba1a1a",
+            "surface": "#f8f9ff",
+            "surface-container": "#e5eeff",
+            "on-surface": "#0b1c30",
+            "on-secondary": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "on-primary-fixed-variant": "#07497d",
+            "outline": "#727780",
+            "tertiary-container": "#005539",
+            "tertiary-fixed-dim": "#4edea3",
+            "inverse-on-surface": "#eaf1ff",
+            "surface-tint": "#2d6197",
+            "on-primary-container": "#8ebdf9",
+            "on-secondary-fixed": "#001d31",
+            "on-primary-fixed": "#001c37",
+            "surface-variant": "#d3e4fe",
+            "inverse-primary": "#a0c9ff",
+            "tertiary-fixed": "#6ffbbe",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-container": "#00476e",
+            "on-surface-variant": "#42474f",
+            "background": "#f8f9ff",
+            "secondary-fixed": "#cce5ff",
+            "on-error": "#ffffff",
+            "primary": "#00355f",
+            "surface-container-highest": "#d3e4fe",
+            "primary-container": "#0f4c81",
+            "on-tertiary-fixed": "#002113",
+            "surface-container-high": "#dce9ff",
+            "inverse-surface": "#213145",
+            "on-secondary-fixed-variant": "#004b73",
+            "on-error-container": "#93000a",
+            "primary-fixed-dim": "#a0c9ff",
+            "on-primary": "#ffffff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "margin": "2rem",
+            "space-xl": "2rem",
+            "gutter": "1.25rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "gutter-mobile": "0.75rem",
+            "margin-mobile": "1rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Plus Jakarta Sans"],
+            "label-md": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "title-md": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "metric-number": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "display": ["Plus Jakarta Sans"],
+            "label-lg": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }],
+            "metric-number": ["28px", { "lineHeight": "32px", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .material-symbols-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      background-color: #f8f9ff;
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased font-body-md text-body-md pb-28">
+<!-- TOP MOBILE APP BAR (Kinfolk Identity Shell) -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest px-space-md py-space-sm shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary-container font-headline-sm text-headline-sm font-bold">
+<span class="material-symbols-outlined text-primary-container" data-icon="child_care">child_care</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary tracking-tight">Kinfolk Care</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Guardian Mobile Connect</p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button aria-label="Notifications" class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150 relative" type="button">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary-container"></span>
+</button>
+<button aria-label="Support desk" class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" type="button">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+</header>
+<!-- MAIN SCROLLABLE CONTAINER -->
+<main class="max-w-md mx-auto px-space-md pt-space-md space-y-space-md">
+<!-- CHILD IDENTITY & LIVE STATUS HERO CARD -->
+<section class="bg-surface-container-lowest rounded-xl p-space-md border border-outline-variant shadow-sm relative overflow-hidden">
+<!-- Subtle top decorative accent -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-primary-container"></div>
+<div class="flex items-start gap-space-md pt-1">
+<!-- Child Avatar with active indicator ring -->
+<div class="relative shrink-0">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-surface-container shadow-sm" data-alt="A candid, warm, high-definition photograph of a cheerful two-year-old toddler named Leo Martinez with messy soft curls, bright curious brown eyes, and a mustard yellow linen sweater, looking warmly at the camera in a modern sunlit Scandinavian nursery space bathed in soft natural morning glow." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfdi0ZVCcnlwb5r5JjbETJ1mmBid7LWzTjOatvEQRa9ljG9ERjwF92XjJYnhIa2GQ3V2i4kzIga01ybYyVVkSXwghGz7jFCQBC_4NQFhz5r3nCqiZKo1epE3sW_4k6diYo4PowjdOec-s6iPACfigaVcJfC2f-8dh8o47AyGaSlc5NtsKcN6AFvvpowC23WrNhwngjzAYtkQAXyvlkx17AXFSrOIMQvafBkswtZ8K0306kL-I1x4s"/>
+<div class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-tertiary-container border-2 border-surface-container-lowest flex items-center justify-center" title="Present on Campus">
+<span class="material-symbols-outlined text-white text-[10px] material-symbols-fill" data-icon="check">check</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1 mb-0.5">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold truncate">Leo Martinez</h2>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container text-primary font-bold tracking-wide">Toddler B</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mb-2.5">
+<span class="material-symbols-outlined text-[16px] text-secondary" data-icon="school">school</span>
+<span class="truncate">Sunflower Academy • with Ms. Sarah</span>
+</p>
+<!-- Live Verified Dropoff Pill -->
+<div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-container-low border border-secondary-fixed-dim text-primary">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-pulse"></span>
+<span class="font-label-sm text-label-sm font-bold truncate">Checked In at 8:14 AM</span>
+<span class="text-outline text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Elena M. (Mom)</span>
+</div>
+</div>
+</div>
+<!-- Ratio Compliance Mini Indicator -->
+<div class="mt-space-md pt-space-sm border-t border-surface-container flex items-center justify-between text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container" data-icon="groups">groups</span>
+<span class="font-label-sm text-label-sm">Room Ratio: <strong class="text-on-surface font-semibold">1:4 (Compliant)</strong></span>
+</div>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-tertiary-container font-semibold">
+<span class="material-symbols-outlined text-[14px]" data-icon="verified_user">verified_user</span> State Certified
+        </span>
+</div>
+</section>
+<!-- TODAY'S CARE SUMMARY METRICS -->
+<section aria-label="Today's Summary">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-title-md text-title-md text-primary font-bold">Today's Summary</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Updated 10m ago</span>
+</div>
+<div class="grid grid-cols-3 gap-2.5">
+<!-- Nap Metric -->
+<div class="bg-surface-container-lowest p-3 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="p-1.5 rounded-lg bg-surface-container text-secondary">
+<span class="material-symbols-outlined text-[18px]" data-icon="bedtime">bedtime</span>
+</span>
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+</div>
+<div>
+<div class="font-metric-number text-metric-number text-primary leading-tight">1.5 <span class="font-label-md text-label-md font-semibold text-on-surface-variant">hrs</span></div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Nap Rest</div>
+</div>
+</div>
+<!-- Lunch Metric -->
+<div class="bg-surface-container-lowest p-3 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="p-1.5 rounded-lg bg-surface-container text-tertiary-container">
+<span class="material-symbols-outlined text-[18px]" data-icon="restaurant">restaurant</span>
+</span>
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+</div>
+<div>
+<div class="font-metric-number text-metric-number text-primary leading-tight">100%</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Lunch Eaten</div>
+</div>
+</div>
+<!-- Diaper Metric -->
+<div class="bg-surface-container-lowest p-3 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="p-1.5 rounded-lg bg-surface-container text-primary-container">
+<span class="material-symbols-outlined text-[18px]" data-icon="clean_hands">clean_hands</span>
+</span>
+<span class="w-2 h-2 rounded-full bg-primary-fixed-dim"></span>
+</div>
+<div>
+<div class="font-metric-number text-metric-number text-primary leading-tight">2 <span class="font-label-md text-label-md font-semibold text-on-surface-variant">logs</span></div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Diaper Checks</div>
+</div>
+</div>
+</div>
+</section>
+<!-- QUICK GUARDIAN ACTIONS -->
+<section aria-label="Direct Guardian Actions" class="bg-surface-container-lowest rounded-xl p-space-md border border-outline-variant shadow-sm">
+<h3 class="font-label-lg text-label-lg text-primary font-bold mb-3">Direct Actions</h3>
+<div class="grid grid-cols-3 gap-2">
+<!-- Message Teacher -->
+<button class="flex flex-col items-center justify-center p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary transition-all duration-150 active:scale-[0.98] border border-surface-container text-center" type="button">
+<div class="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center mb-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="chat">chat</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold leading-tight text-on-surface">Message Teacher</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant mt-0.5 truncate max-w-full">Ms. Sarah</span>
+</button>
+<!-- Update Pickup Person -->
+<button class="flex flex-col items-center justify-center p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary transition-all duration-150 active:scale-[0.98] border border-surface-container text-center" type="button">
+<div class="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center mb-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="how_to_reg">how_to_reg</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold leading-tight text-on-surface">Update Pickup</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant mt-0.5">PIN / Auth</span>
+</button>
+<!-- Report Late / Sick -->
+<button class="flex flex-col items-center justify-center p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary transition-all duration-150 active:scale-[0.98] border border-surface-container text-center" type="button">
+<div class="w-8 h-8 rounded-full bg-surface-container text-outline flex items-center justify-center mb-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="event_busy">event_busy</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold leading-tight text-on-surface">Report Late</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant mt-0.5">Or Sick Day</span>
+</button>
+</div>
+</section>
+<!-- CHRONOLOGICAL LIVE FEED CARDS -->
+<section aria-label="Chronological Daily Feed" class="space-y-3">
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-2">
+<h3 class="font-title-md text-title-md text-primary font-bold">Live Activity Feed</h3>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-tertiary-container text-white font-bold animate-pulse">LIVE</span>
+</div>
+<button class="text-secondary font-label-md text-label-md hover:underline flex items-center gap-0.5" type="button">
+<span>Filter</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="tune">tune</span>
+</button>
+</div>
+<!-- FEED ITEM 1: Photo Moment (Sensory Play) -->
+<article class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden transition-all duration-150">
+<div class="p-space-md pb-2">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]" data-icon="photo_camera">photo_camera</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Sensory Discovery Moment</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">10:45 AM • Logged by Ms. Sarah</p>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container text-primary font-bold">Activity</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-2.5">
+            "Leo absolutely loved sensory bin exploration this morning! He carefully sorted smooth sea stones and blue glass pebbles by texture and shared his favorite bowl with Maya."
+          </p>
+</div>
+<!-- Moment Photo -->
+<div class="relative w-full h-56 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A vivid, candid documentary lifestyle photo in an organic sun-drenched early learning center. A two-year-old boy with dark curly hair is happily dipping little hands into a tactile wooden sensory tub filled with textured indigo waterbeads and smooth river stones. Warm ambient light shines across light-wood classroom tables with soft shadows and pastel toy bins in the soft-focus background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR00udeRmq1ytQtyrWnkZZfXl8_30KSvtPLV8_EHQvEbkpk7K6xhxXwaMTWwHUoXK7sYNEM62xR1kG63d05epF5Otcr-eHC6UU9k8N9t-zpGXiPw1Wyi_RGNP39p4MEd3EX2K_GrgIQ6O9sdxvrfRMuBpDEXmK_u5bgYafLmFmc0ZdU568J5z7_crCkcDSb43OSj3cS343nGGB5bSRVcnfV_51IqM60UaE2JQAdJzhlu0YhlWmPB8"/>
+<div class="absolute bottom-2.5 right-2.5 bg-on-background/70 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-label-sm font-label-sm flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="auto_awesome">auto_awesome</span>
+<span>Milestone: Fine Motor Skills</span>
+</div>
+</div>
+<div class="px-space-md py-2.5 bg-surface-container-low flex items-center justify-between border-t border-surface-container">
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-error text-label-sm font-label-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-error" data-icon="favorite">favorite</span>
+<span>Mom &amp; Dad loved this</span>
+</button>
+</div>
+<button class="text-secondary font-label-sm text-label-sm font-semibold hover:underline flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="download">download</span> Save
+          </button>
+</div>
+</article>
+<!-- FEED ITEM 2: Lunch Update -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md border border-outline-variant shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-full bg-surface-container text-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]" data-icon="restaurant_menu">restaurant_menu</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Lunch &amp; Hydration</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">11:45 AM • Toddler Dining Hall</p>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-tertiary-container/10 text-tertiary-container font-bold">All Finished</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 space-y-2 border border-surface-container mt-3">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container" data-icon="task_alt">task_alt</span>
+              Organic roasted turkey breast &amp; steamed green peas
+            </span>
+<span class="font-semibold text-primary">100%</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container" data-icon="task_alt">task_alt</span>
+              Warm honey whole grain biscuit
+            </span>
+<span class="font-semibold text-primary">All</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm pt-1 border-t border-surface-container">
+<span class="text-on-surface-variant flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary" data-icon="water_drop">water_drop</span>
+              Filtered water (sippy cup)
+            </span>
+<span class="font-semibold text-on-surface">6 oz</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2.5 italic">
+          "Great appetite today! Leo asked for seconds of peas and used his toddler spoon independently."
+        </p>
+</article>
+<!-- FEED ITEM 3: Nap Time Confirmation -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md border border-outline-variant shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]" data-icon="bedtime">bedtime</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Nap Time Rest Period</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">12:30 PM - 2:00 PM (1 hr 30 min)</p>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container text-secondary font-bold">Rested</span>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-low border border-surface-container mt-2">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-secondary shrink-0 shadow-xs">
+<span class="material-symbols-outlined" data-icon="music_note">music_note</span>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface">
+            Fell asleep peacefully to classroom sound machine (Rainfall 40dB) with personal blue bunny blanket. Woke up smiling at 2:00 PM.
+          </div>
+</div>
+</article>
+<!-- FEED ITEM 4: Morning Arrival & Guardian Verification -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md border border-outline-variant shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-full bg-surface-container text-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]" data-icon="how_to_reg">how_to_reg</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Morning Check-In Verified</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">8:14 AM • Academy Main Entryway</p>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container text-primary font-bold">Verified</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low border border-surface-container text-body-sm font-body-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container text-[20px]" data-icon="verified_user">verified_user</span>
+<div>
+<p class="font-semibold text-on-surface">Elena Martinez (Mother)</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Biometric Kiosk Verification • PIN #****42</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px]" data-icon="done_all">done_all</span>
+</div>
+</article>
+</section>
+<!-- CLASSROOM MESSAGE BANNER (DIRECTOR / TEACHER QUICK DIALOGUE) -->
+<section class="bg-primary-container rounded-xl p-space-md text-white shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined" data-icon="volunteer_activism">volunteer_activism</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold">Water Day Tomorrow!</h4>
+<p class="font-body-sm text-body-sm text-surface-variant">Please pack an extra pair of water shoes and sunscreen.</p>
+</div>
+</div>
+<button class="ml-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md font-bold whitespace-nowrap hover:bg-surface-container transition-colors" type="button">
+        Got It
+      </button>
+</section>
+</main>
+<!-- STICKY BOTTOM NAVIGATION BAR (Guardian Flow) -->
+<nav aria-label="Bottom Navigation" class="fixed bottom-0 left-0 right-0 z-50 bg-surface-container-lowest shadow-lg max-w-md mx-auto">
+<div class="flex items-center justify-around py-2 px-space-xs">
+<!-- Nav 1: Feed (Active) -->
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-lg text-primary font-label-md text-label-md font-bold" href="#feed">
+<span class="material-symbols-outlined material-symbols-fill text-[22px] text-primary" data-icon="dynamic_feed">dynamic_feed</span>
+<span class="text-[11px] mt-0.5">Feed</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary mt-0.5"></span>
+</a>
+<!-- Nav 2: Milestones -->
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md" href="#milestones">
+<span class="material-symbols-outlined text-[22px]" data-icon="emoji_events">emoji_events</span>
+<span class="text-[11px] mt-0.5">Milestones</span>
+<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5"></span>
+</a>
+<!-- Nav 3: Photos -->
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md" href="#photos">
+<span class="material-symbols-outlined text-[22px]" data-icon="photo_library">photo_library</span>
+<span class="text-[11px] mt-0.5">Photos</span>
+<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5"></span>
+</a>
+<!-- Nav 4: Messages -->
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md relative" href="#messages">
+<div class="relative">
+<span class="material-symbols-outlined text-[22px]" data-icon="chat">chat</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-secondary-container"></span>
+</div>
+<span class="text-[11px] mt-0.5">Messages</span>
+<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5"></span>
+</a>
+<!-- Nav 5: Profile -->
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md" href="#profile">
+<span class="material-symbols-outlined text-[22px]" data-icon="account_circle">account_circle</span>
+<span class="text-[11px] mt-0.5">Profile</span>
+<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5"></span>
+</a>
+</div>
+</nav>
+</body></html>
