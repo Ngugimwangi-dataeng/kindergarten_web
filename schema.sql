@@ -1,8 +1,4 @@
--- =====================================================================
--- Full Updated Database Schema: Daycare Childcare Management System
--- File: schema.sql
--- Compatible with PostgreSQL 13+
--- =====================================================================
+
 
 -- 1. App Users & Roles (Managers & Teachers)
 CREATE TABLE IF NOT EXISTS users (
