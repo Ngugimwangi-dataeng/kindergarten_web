@@ -22,6 +22,21 @@ A Flask and PostgreSQL daycare management application for attendance, authorized
 
 The development server uses `http://127.0.0.1:5001` by default.
 
+## Vercel deployment
+
+Import the GitHub repository in Vercel. The repository includes `vercel.json`, `api/index.py`, and `requirements.txt` for Python serverless deployment.
+
+Configure these environment variables in the Vercel project settings:
+
+```text
+DATABASE_URL=postgresql://user:password@host:port/database
+FLASK_SECRET_KEY=your-random-production-secret
+AT_USERNAME=your_africas_talking_username
+AT_API_KEY=your_africas_talking_api_key
+```
+
+`DATABASE_URL` must point to PostgreSQL accessible from Vercel. Apply `schema.sql` and keep database credentials, SMS keys, and SMTP credentials only in Vercel environment settings or local `.env`, never in the repository.
+
 ## Security
 
 Keep `.env`, API keys, database passwords, and Flask secrets out of source control. The repository `.gitignore` excludes local secrets and virtual environments.
