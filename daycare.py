@@ -152,11 +152,17 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
             with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
                 server.starttls()
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
-                server.sendmail(EMAIL_FROM_ADDRESS, [recipient_email], msg.as_string())
-            delivery_status = "Delivered (SMTP)"
-        except Exception as mail_err:
-            app.logger.error(f"Email dispatch error: {mail_err}")
-            delivery_status = "Failed (Local Simulation)"
+                send_result = server.sendmail(EMAIL_FROM_ADDRESS, [recipient_email], msg.as_string())
+            logging.info("Email SMTP response: %s", send_result)
+
+            if send_result:
+                delivery_status = f"Failed (SMTP rejected recipient: {send_result})"
+                logging.error("Email was not delivered to %s: SMTP rejected recipient - %s", recipient_email, send_result)
+            else:
+                delivery_status = "Delivered (SMTP)"
+        except Exception:
+            logging.exception("Email send failed for %s", recipient_email)
+            delivery_status = "Failed (Email send error)"
     else:
         delivery_status = "Delivered (Dev Sim Email)"
 
