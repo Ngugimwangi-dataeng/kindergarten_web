@@ -6,6 +6,7 @@ Channels: Dual SMS + Email (Africa's Talking SMS for Instant Alerts + SMTP / API
 """
 
 import os
+import logging
 import secrets
 import smtplib
 from email.mime.text import MIMEText
@@ -26,12 +27,12 @@ from dotenv import load_dotenv
 # Load local environment configuration
 load_dotenv()
 
+logging.basicConfig(level=logging.INFO)
+
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
 
-# ==============================================================================
 # Database Configuration & Context Manager
-# ==============================================================================
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_db_connection():
@@ -60,9 +61,7 @@ def get_db_cursor(commit=False):
     finally:
         conn.close()
 
-# ==============================================================================
 # 1. Africa's Talking SMS Dispatch Gateway
-# ==============================================================================
 AT_USERNAME = os.getenv("AT_USERNAME", "sandbox")
 AT_API_KEY = os.getenv("AT_API_KEY", "")
 
@@ -83,13 +82,25 @@ def dispatch_sms(recipient_phone, message_body, child_id=None, first_name="", la
             africastalking.initialize(AT_USERNAME, AT_API_KEY)
             sms = africastalking.SMS
             response = sms.send(message_body, [recipient_phone])
+            logging.info("AT response: %s", response)
+
             recipients = response.get('SMSMessageData', {}).get('Recipients', [])
             if recipients:
-                delivery_status = recipients[0].get('status', 'Sent')
-                at_msg_id = recipients[0].get('messageId')
-        except Exception as exc:
-            app.logger.error(f"Africa's Talking SMS dispatch failed: {exc}")
-            delivery_status = "Failed (Local Simulation)"
+                recipient = recipients[0]
+                provider_status = recipient.get('status', 'Failed')
+                at_msg_id = recipient.get('messageId')
+
+                if str(provider_status).lower() == 'success':
+                    delivery_status = 'Sent'
+                else:
+                    delivery_status = f"Failed ({provider_status})"
+                    logging.error("SMS was not delivered to %s: %s", recipient_phone, provider_status)
+            else:
+                delivery_status = "Failed (No recipient response)"
+                logging.error("SMS was not delivered to %s: Africa's Talking returned no recipient response", recipient_phone)
+        except Exception:
+            logging.exception("SMS send failed for %s", recipient_phone)
+            delivery_status = "Failed (SMS send error)"
     else:
         delivery_status = "Delivered (Dev Sim)"
 
@@ -106,9 +117,7 @@ def dispatch_sms(recipient_phone, message_body, child_id=None, first_name="", la
 
     return delivery_status
 
-# ==============================================================================
 # 2. Email Dispatch Gateway (SMTP / Transactional Service)
-# ==============================================================================
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USERNAME = os.getenv("SMTP_USERNAME", "")
@@ -164,9 +173,7 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
 
     return delivery_status
 
-# ==============================================================================
 # 3. Unified Multi-Channel Dispatch Router (Dual SMS + Email)
-# ==============================================================================
 def dispatch_parent_notification(child, subject, message_text, message_html=None):
     """
     Dispatches message across SMS, Email, or Both depending on parent preference.
@@ -189,9 +196,7 @@ def dispatch_parent_notification(child, subject, message_text, message_html=None
 
     return {"sms": sms_res, "email": email_res}
 
-# ==============================================================================
 # Authentication Decorators
-# ==============================================================================
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -212,9 +217,7 @@ def manager_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# ==============================================================================
 # Authentication Routes
-# ==============================================================================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -243,9 +246,7 @@ def logout():
     flash("You have been signed out.")
     return redirect(url_for('login'))
 
-# ==============================================================================
 # Manager Dashboard (Desktop Operations Hub)
-# ==============================================================================
 @app.route('/')
 @app.route('/dashboard')
 @login_required
@@ -295,9 +296,7 @@ def manager_dashboard():
         username=session.get('user')
     )
 
-# ==============================================================================
 # Teacher Mobile Floor App View
-# ==============================================================================
 @app.route('/teacher-dashboard')
 @login_required
 def teacher_dashboard():
@@ -322,9 +321,7 @@ def teacher_dashboard():
         username=session.get('user')
     )
 
-# ==============================================================================
 # Attendance Status Toggle & Express Actions (Dual SMS + Email Notification)
-# ==============================================================================
 @app.route('/update-status', methods=['POST'])
 @login_required
 def update_status():
@@ -374,9 +371,7 @@ def update_status():
 
     return redirect(request.referrer or url_for('teacher_dashboard'))
 
-# ==============================================================================
 # Guardian Pickup Verification (Handoff Chain of Custody)
-# ==============================================================================
 @app.route('/child/<int:child_id>/guardians', methods=['GET'])
 @login_required
 def get_child_guardians(child_id):
@@ -470,9 +465,7 @@ def verify_pickup_checkout():
 
     return redirect(request.referrer or url_for('teacher_dashboard'))
 
-# ==============================================================================
 # Daily Care Activity Logging (Nap, Meal, Diaper, Incident -> Email Digest)
-# ==============================================================================
 @app.route('/log-care-activity', methods=['POST'])
 @login_required
 def log_care_activity():
@@ -511,9 +504,7 @@ def log_care_activity():
     flash(f"Care milestone ({category.capitalize()}) recorded.")
     return redirect(request.referrer or url_for('teacher_dashboard'))
 
-# ==============================================================================
 # Emergency Broadcast (SMS + Email High-Priority Deployment)
-# ==============================================================================
 @app.route('/trigger-emergency', methods=['POST'])
 @login_required
 def trigger_emergency():
@@ -556,9 +547,7 @@ def trigger_emergency():
 
     return redirect(request.referrer or url_for('teacher_dashboard'))
 
-# ==============================================================================
 # Administrative Management Routes (Manager Role Required)
-# ==============================================================================
 @app.route('/add-family', methods=['POST'])
 @manager_required
 def add_family():
