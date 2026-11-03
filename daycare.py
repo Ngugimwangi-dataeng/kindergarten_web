@@ -32,7 +32,9 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
+app.secret_key = os.getenv("FLASK_SECRET_KEY") or "sunflower-local-development-only-change-before-production"
+if not os.getenv("FLASK_SECRET_KEY"):
+    logging.warning("FLASK_SECRET_KEY is not configured; using a development fallback. Set a stable secret in production.")
 EAT_TIMEZONE = ZoneInfo("Africa/Nairobi")
 
 def east_africa_time():
@@ -43,6 +45,7 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE=os.getenv("SESSION_COOKIE_SAMESITE", "Lax"),
     WTF_CSRF_SSL_STRICT=False,
+    WTF_CSRF_USE_SESSIONS=False,
 )
 csrf = CSRFProtect(app)
 
