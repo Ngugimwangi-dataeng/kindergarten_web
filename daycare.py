@@ -50,6 +50,31 @@ app.config.update(
 )
 csrf = CSRFProtect(app)
 
+INACTIVE_TIMEOUT_SECONDS = 10 * 60
+
+@app.before_request
+def expire_inactive_session():
+    if 'user' not in session:
+        return None
+
+    last_activity = session.get('last_activity')
+    now = datetime.now(timezone.utc).timestamp()
+    if last_activity is not None:
+        try:
+            inactive = now - float(last_activity)
+        except (TypeError, ValueError):
+            inactive = INACTIVE_TIMEOUT_SECONDS + 1
+    else:
+        inactive = INACTIVE_TIMEOUT_SECONDS + 1
+
+    if inactive >= INACTIVE_TIMEOUT_SECONDS:
+        session.clear()
+        session['inactive_logout'] = True
+        return redirect(url_for('login'))
+
+    session['last_activity'] = now
+    return None
+
 @app.after_request
 def add_security_headers(response):
     response.headers.setdefault("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
@@ -300,6 +325,9 @@ def manager_required(f):
 # Authentication Routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if session.pop('inactive_logout', False):
+        flash("You were signed out automatically after 10 minutes of inactivity.", "warning")
+
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
@@ -312,6 +340,8 @@ def login():
             session['user'] = user['username']
             session['role'] = user['role']
             session['user_id'] = user['id']
+            session['last_activity'] = datetime.now(timezone.utc).timestamp()
+            session.pop('inactive_logout', None)
             flash(f"Welcome back, {user['username']}!")
             if user['role'] == 'manager':
                 return redirect(url_for('manager_dashboard'))
