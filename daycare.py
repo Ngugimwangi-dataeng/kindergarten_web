@@ -9,6 +9,7 @@ import os
 import logging
 import secrets
 import smtplib
+import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timezone, timedelta
@@ -159,6 +160,7 @@ SMTP_USERNAME = _env_text("SMTP_USERNAME")
 SMTP_PASSWORD = _env_text("SMTP_PASSWORD").replace(" ", "")
 EMAIL_FROM_ADDRESS = _env_text("EMAIL_FROM_ADDRESS") or SMTP_USERNAME or "notifications@sunfloweracademy.org"
 EMAIL_FROM_NAME = _env_text("EMAIL_FROM_NAME", "Sunflower Academy")
+RESEND_API_KEY = _env_text("RESEND_API_KEY")
 
 missing_smtp_settings = [
     name for name, configured in (
@@ -181,19 +183,41 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
     if not recipient_email:
         return "Skipped (No Email)"
 
-    if SMTP_USERNAME and SMTP_PASSWORD:
+    if RESEND_API_KEY:
+        try:
+            response = requests.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": "Bearer " + RESEND_API_KEY,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": f"{EMAIL_FROM_NAME} <{EMAIL_FROM_ADDRESS}>",
+                    "to": [recipient_email],
+                    "subject": subject,
+                    "text": body_text,
+                    "html": body_html,
+                },
+                timeout=15,
+            )
+            if response.ok:
+                delivery_status = "Delivered (Resend)"
+                logging.info("Email delivered through Resend for %s: %s", recipient_email, response.text)
+            else:
+                delivery_status = f"Failed (Resend: HTTP {response.status_code})"
+                logging.error("Email failed through Resend for %s: %s", recipient_email, response.text)
+        except Exception:
+            logging.exception("Resend email send failed for %s", recipient_email)
+            delivery_status = "Failed (Email API send error)"
+    elif SMTP_USERNAME and SMTP_PASSWORD:
         try:
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["From"] = f"{EMAIL_FROM_NAME} <{EMAIL_FROM_ADDRESS}>"
             msg["To"] = recipient_email
-
-            part_text = MIMEText(body_text, "plain")
-            msg.attach(part_text)
-
+            msg.attach(MIMEText(body_text, "plain"))
             if body_html:
-                part_html = MIMEText(body_html, "html")
-                msg.attach(part_html)
+                msg.attach(MIMEText(body_html, "html"))
 
             smtp_class = smtplib.SMTP_SSL if SMTP_PORT == 465 else smtplib.SMTP
             with smtp_class(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
@@ -203,7 +227,6 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
                     server.ehlo()
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
                 send_result = server.sendmail(EMAIL_FROM_ADDRESS, [recipient_email], msg.as_string())
-            logging.info("Email SMTP response: %s", send_result)
 
             if send_result:
                 delivery_status = f"Failed (SMTP rejected recipient: {send_result})"
@@ -215,7 +238,7 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
             delivery_status = "Failed (Email send error)"
     else:
         delivery_status = "Failed (SMTP not configured)"
-        logging.error("Email was not sent to %s: SMTP_USERNAME and SMTP_PASSWORD are not configured", recipient_email)
+        logging.error("Email was not sent to %s: no email provider is configured", recipient_email)
 
     # Audit in message_logs
     try:
