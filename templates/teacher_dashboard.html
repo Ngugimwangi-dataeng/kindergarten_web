@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daycare Administration & Safety Operations Hub</title>
     <!-- Google Fonts & Material Symbols -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <style>
         :root {
             --primary: #0f4c81;
@@ -199,7 +195,10 @@
         </div>
         <div>
             <div style="font-size:0.8rem; color:#64748b; margin-bottom:8px;">Signed in as <strong>{{ username or 'Admin' }}</strong></div>
-            <a href="/logout" class="btn btn-checkout" style="display:block; text-align:center;">Sign Out Securely 🚪</a>
+            <form action="/logout" method="POST" style="margin:0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-checkout" style="width:100%;">Sign Out Securely 🚪</button>
+            </form>
         </div>
     </aside>
 
@@ -303,6 +302,7 @@
 
                         <div class="btn-group">
                             <form action="/update-status" method="POST" style="margin:0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="child_id" value="{{ child.id }}">
                                 {% if child.current_status == 'Checked In' %}
                                     <input type="hidden" name="action" value="Checked Out">
@@ -314,6 +314,7 @@
                             </form>
 
                             <form action="/trigger-emergency" method="POST" style="margin:0;" onsubmit="return confirm('Deploy emergency broadcast via SMS and Email to this parent?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="child_id" value="{{ child.id }}">
                                 <button type="submit" class="btn btn-alert">🚨 Alert</button>
                             </form>
@@ -347,6 +348,7 @@
         <section class="form-section" id="onboardSection">
             <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-heading);">👶 Onboard a New Family (Dual SMS + Email Enrollment)</h3>
             <form action="/add-family" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-grid-3">
                     <input type="text" name="child_first" placeholder="Child First Name" required class="form-control">
                     <input type="text" name="child_last" placeholder="Child Last Name" required class="form-control">
@@ -405,6 +407,7 @@
         <section class="form-section" id="teacherSection">
             <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-heading);">👥 Create Teacher Floor Account</h3>
             <form action="{{ url_for('add_teacher') }}" method="POST" style="display:flex; gap:12px; align-items:center;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="text" name="username" placeholder="Teacher Username" required class="form-control" style="flex:1;">
                 <input type="password" name="password" placeholder="Temporary Password (8+ chars)" minlength="8" required class="form-control" style="flex:1;">
                 <button type="submit" class="btn btn-checkin" style="padding:10px 18px;">Create Staff Login</button>

@@ -12,6 +12,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from contextlib import contextmanager
 from functools import wraps
 
@@ -20,6 +21,7 @@ from flask import (
     url_for, flash, session, jsonify, abort
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf.csrf import CSRFProtect
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
@@ -31,6 +33,28 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
+EAT_TIMEZONE = ZoneInfo("Africa/Nairobi")
+
+def east_africa_time():
+    return datetime.now(EAT_TIMEZONE)
+
+app.config.update(
+    SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "true").lower() == "true",
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE=os.getenv("SESSION_COOKIE_SAMESITE", "Lax"),
+)
+csrf = CSRFProtect(app)
+
+@app.after_request
+def add_security_headers(response):
+    response.headers.setdefault("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    if request.is_secure or request.headers.get("X-Forwarded-Proto", "").split(",")[0].strip() == "https":
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return response
 
 # Database Configuration & Context Manager
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -122,7 +146,7 @@ SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USERNAME = os.getenv("SMTP_USERNAME", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-EMAIL_FROM_ADDRESS = os.getenv("EMAIL_FROM_ADDRESS", "notifications@sunfloweracademy.org")
+EMAIL_FROM_ADDRESS = os.getenv("EMAIL_FROM_ADDRESS", SMTP_USERNAME or "notifications@sunfloweracademy.org")
 EMAIL_FROM_NAME = os.getenv("EMAIL_FROM_NAME", "Sunflower Academy")
 
 def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id=None, first_name="", last_name=""):
@@ -149,8 +173,10 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
                 part_html = MIMEText(body_html, "html")
                 msg.attach(part_html)
 
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
+                server.ehlo()
                 server.starttls()
+                server.ehlo()
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
                 send_result = server.sendmail(EMAIL_FROM_ADDRESS, [recipient_email], msg.as_string())
             logging.info("Email SMTP response: %s", send_result)
@@ -164,7 +190,8 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
             logging.exception("Email send failed for %s", recipient_email)
             delivery_status = "Failed (Email send error)"
     else:
-        delivery_status = "Delivered (Dev Sim Email)"
+        delivery_status = "Failed (SMTP not configured)"
+        logging.error("Email was not sent to %s: SMTP_USERNAME and SMTP_PASSWORD are not configured", recipient_email)
 
     # Audit in message_logs
     try:
@@ -246,11 +273,20 @@ def login():
         flash("Invalid username or password.")
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
     session.clear()
     flash("You have been signed out.")
     return redirect(url_for('login'))
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/robots.txt')
+def robots_txt():
+    from flask import Response
+    return Response("User-agent: GPTBot\nDisallow: /\nUser-agent: CCBot\nDisallow: /\nUser-agent: anthropic-ai\nDisallow: /\nUser-agent: *\nDisallow: /login\n", mimetype='text/plain')
 
 # Manager Dashboard (Desktop Operations Hub)
 @app.route('/')
@@ -336,7 +372,7 @@ def update_status():
     teacher = session.get('user', 'Staff')
 
     new_status = 'Checked In' if action == 'Check In' else 'Checked Out'
-    now_str = datetime.now().strftime('%I:%M %p')
+    now_str = east_africa_time().strftime('%H:%M')
 
     with get_db_cursor(commit=True) as cur:
         cur.execute("""
@@ -399,7 +435,7 @@ def verify_pickup_checkout():
     guardian_id = request.form.get('guardian_id')
     departure_notes = request.form.get('departure_notes', '')
     teacher = session.get('user', 'Staff')
-    now_str = datetime.now().strftime('%I:%M %p')
+    now_str = east_africa_time().strftime('%H:%M')
 
     with get_db_cursor(commit=True) as cur:
         # Fetch guardian details and enforce one-time pickup authorization.
@@ -540,7 +576,7 @@ def trigger_emergency():
             <p style="font-size: 14px; color: #7f1d1d;">
                 Please contact the campus office immediately.
             </p>
-            <p style="font-size: 12px; color: #991b1b;">Dispatched at {datetime.now().strftime('%I:%M %p')} by {teacher}</p>
+            <p style="font-size: 12px; color: #991b1b;">Dispatched at {east_africa_time().strftime('%H:%M')} (EAT) by {teacher}</p>
         </div>
         """
         # In emergencies, broadcast across BOTH SMS and Email simultaneously
