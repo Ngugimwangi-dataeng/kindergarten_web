@@ -196,7 +196,7 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
                 msg.attach(part_html)
 
             smtp_class = smtplib.SMTP_SSL if SMTP_PORT == 465 else smtplib.SMTP
-            with smtp_class(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
+            with smtp_class(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
                 if SMTP_PORT != 465:
                     server.ehlo()
                     server.starttls()
