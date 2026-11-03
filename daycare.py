@@ -39,9 +39,10 @@ def east_africa_time():
     return datetime.now(EAT_TIMEZONE)
 
 app.config.update(
-    SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "true").lower() == "true",
+    SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true",
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE=os.getenv("SESSION_COOKIE_SAMESITE", "Lax"),
+    WTF_CSRF_SSL_STRICT=False,
 )
 csrf = CSRFProtect(app)
 
