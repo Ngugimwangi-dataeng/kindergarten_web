@@ -143,12 +143,19 @@ def dispatch_sms(recipient_phone, message_body, child_id=None, first_name="", la
     return delivery_status
 
 # 2. Email Dispatch Gateway (SMTP / Transactional Service)
-SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-SMTP_USERNAME = os.getenv("SMTP_USERNAME", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-EMAIL_FROM_ADDRESS = os.getenv("EMAIL_FROM_ADDRESS", SMTP_USERNAME or "notifications@sunfloweracademy.org")
-EMAIL_FROM_NAME = os.getenv("EMAIL_FROM_NAME", "Sunflower Academy")
+def _env_text(name, default=""):
+    value = os.getenv(name, default)
+    return value.strip().strip('"').strip("'") if value else default
+
+SMTP_SERVER = _env_text("SMTP_SERVER", "smtp.gmail.com")
+try:
+    SMTP_PORT = int(_env_text("SMTP_PORT", "587"))
+except ValueError:
+    SMTP_PORT = 587
+SMTP_USERNAME = _env_text("SMTP_USERNAME")
+SMTP_PASSWORD = _env_text("SMTP_PASSWORD").replace(" ", "")
+EMAIL_FROM_ADDRESS = _env_text("EMAIL_FROM_ADDRESS") or SMTP_USERNAME or "notifications@sunfloweracademy.org"
+EMAIL_FROM_NAME = _env_text("EMAIL_FROM_NAME", "Sunflower Academy")
 
 def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id=None, first_name="", last_name=""):
     """
@@ -174,10 +181,12 @@ def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id
                 part_html = MIMEText(body_html, "html")
                 msg.attach(part_html)
 
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
-                server.ehlo()
-                server.starttls()
-                server.ehlo()
+            smtp_class = smtplib.SMTP_SSL if SMTP_PORT == 465 else smtplib.SMTP
+            with smtp_class(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
+                if SMTP_PORT != 465:
+                    server.ehlo()
+                    server.starttls()
+                    server.ehlo()
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
                 send_result = server.sendmail(EMAIL_FROM_ADDRESS, [recipient_email], msg.as_string())
             logging.info("Email SMTP response: %s", send_result)
@@ -589,6 +598,24 @@ def trigger_emergency():
         flash(f"EMERGENCY BROADCAST deployed to {child['first_name']}'s parents via SMS and Email.", "danger")
 
     return redirect(request.referrer or url_for('teacher_dashboard'))
+
+@app.route('/test-email', methods=['POST'])
+@manager_required
+def test_email_delivery():
+    recipient = request.form.get('recipient_email', '').strip() or SMTP_USERNAME
+    if not recipient:
+        flash('Enter an email address or configure SMTP_USERNAME.', 'danger')
+        return redirect(request.referrer or url_for('dashboard'))
+
+    status = dispatch_email(
+        recipient,
+        'Sunflower Academy SMTP Test',
+        'This is a test email from the Sunflower Academy notification system.',
+        body_html='<h2>SMTP test successful</h2><p>Sunflower Academy can send email notifications.</p>',
+    )
+    category = 'success' if status == 'Delivered (SMTP)' else 'danger'
+    flash(f'SMTP test result: {status}', category)
+    return redirect(request.referrer or url_for('dashboard'))
 
 # Administrative Management Routes (Manager Role Required)
 @app.route('/add-family', methods=['POST'])

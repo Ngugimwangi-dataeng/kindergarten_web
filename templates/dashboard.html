@@ -419,6 +419,11 @@
                 <h3 style="margin:0; font-size:1.1rem;">📨 Outbound Dispatch Logs (Africa's Talking SMS & Transactional Email)</h3>
                 <span style="font-size:0.75rem; color:#64748b;">Real-time Audit Trail</span>
             </div>
+            <form action="{{ url_for('test_email_delivery') }}" method="POST" style="display:flex;gap:10px;align-items:center;margin-top:12px;padding:12px;background:#f8fafc;border-radius:8px;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="email" name="recipient_email" placeholder="Test email recipient" class="form-control" required style="max-width:320px;">
+                <button type="submit" class="btn btn-checkin">Send SMTP Test</button>
+            </form>
             <div style="max-height: 280px; overflow-y: auto; margin-top: 12px; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
                 {% for log in logs %}
                 <div class="feed-item {% if log.channel == 'Email' %}email-log{% else %}sms-log{% endif %}" style="margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #f1f5f9;">
