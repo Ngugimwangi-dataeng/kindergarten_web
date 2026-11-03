@@ -157,6 +157,17 @@ SMTP_PASSWORD = _env_text("SMTP_PASSWORD").replace(" ", "")
 EMAIL_FROM_ADDRESS = _env_text("EMAIL_FROM_ADDRESS") or SMTP_USERNAME or "notifications@sunfloweracademy.org"
 EMAIL_FROM_NAME = _env_text("EMAIL_FROM_NAME", "Sunflower Academy")
 
+missing_smtp_settings = [
+    name for name, configured in (
+        ("SMTP_USERNAME", bool(SMTP_USERNAME)),
+        ("SMTP_PASSWORD", bool(SMTP_PASSWORD)),
+    ) if not configured
+]
+if missing_smtp_settings:
+    logging.warning("SMTP email is disabled because these environment variables are missing: %s", ", ".join(missing_smtp_settings))
+else:
+    logging.info("SMTP email configuration loaded for %s:%s", SMTP_SERVER, SMTP_PORT)
+
 def dispatch_email(recipient_email, subject, body_text, body_html=None, child_id=None, first_name="", last_name=""):
     """
     Dispatches outbound email notifications using standard SMTP
