@@ -155,7 +155,7 @@ SMTP_SERVER = _env_text("SMTP_SERVER", "smtp.gmail.com")
 try:
     SMTP_PORT = int(_env_text("SMTP_PORT", "587"))
 except ValueError:
-    SMTP_PORT = 587
+    SMTP_PORT = 465
 SMTP_USERNAME = _env_text("SMTP_USERNAME")
 SMTP_PASSWORD = _env_text("SMTP_PASSWORD").replace(" ", "")
 EMAIL_FROM_ADDRESS = _env_text("EMAIL_FROM_ADDRESS") or SMTP_USERNAME or "notifications@sunfloweracademy.org"
