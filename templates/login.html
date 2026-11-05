@@ -84,6 +84,18 @@
             margin-bottom: 16px;
             text-align: center;
         }
+        .reset-toggle {
+            display: block;
+            margin: 18px 0 0;
+            text-align: center;
+            color: #0f4c81;
+            font-size: 0.84rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        #adminReset { margin-top: 18px; border-top: 1px solid #e2e8f0; padding-top: 18px; }
+        #adminReset h2 { color: #0f4c81; font-size: 1rem; margin-bottom: 14px; text-align: center; }
+        #adminReset small { display: block; color: #64748b; font-size: 0.75rem; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -114,6 +126,33 @@
         </div>
         <button type="submit" class="btn-submit">Sign In</button>
     </form>
+
+    <a href="#adminReset" class="reset-toggle" onclick="document.getElementById('adminReset').hidden=false; this.hidden=true; return false;">Reset administrator password</a>
+
+    <section id="adminReset" hidden>
+        <h2>Administrator Password Reset</h2>
+        <form action="{{ url_for('reset_admin_password') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label class="form-label">Administrator Username</label>
+                <input type="text" name="username" class="form-input" autocomplete="username" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input type="password" name="current_password" class="form-input" autocomplete="current-password" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" name="new_password" class="form-input" minlength="8" autocomplete="new-password" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" name="confirm_password" class="form-input" minlength="8" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="btn-submit">Reset Administrator Password</button>
+            <small>Teachers cannot use this option and must be reset by an administrator.</small>
+        </form>
+    </section>
 </div>
 <p style="text-align:center;margin-top:16px;"><a href="{{ url_for('privacy') }}">Privacy Policy</a></p>
 

@@ -350,6 +350,55 @@ def login():
         flash("Invalid username or password.")
     return render_template('login.html')
 
+@app.route('/reset-admin-password', methods=['POST'])
+def reset_admin_password():
+    username = request.form.get('username', '').strip()
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+
+    if not username or not current_password or not new_password or not confirm_password:
+        flash("Complete every administrator password-reset field.", "warning")
+        return redirect(url_for('login'))
+
+    if new_password != confirm_password:
+        flash("The new passwords do not match.", "warning")
+        return redirect(url_for('login'))
+
+    if len(new_password) < 8:
+        flash("The new password must be at least 8 characters long.", "warning")
+        return redirect(url_for('login'))
+
+    if current_password == new_password:
+        flash("Choose a new password that is different from the current password.", "warning")
+        return redirect(url_for('login'))
+
+    with get_db_cursor() as cur:
+        cur.execute("SELECT id, password_hash, role FROM users WHERE username = %s", (username,))
+        user = cur.fetchone()
+
+    if not user:
+        flash("Administrator account was not found.", "danger")
+        return redirect(url_for('login'))
+
+    if user['role'] != 'manager':
+        flash("Teacher passwords can only be reset by the administrator.", "danger")
+        return redirect(url_for('login'))
+
+    if not check_password_hash(user['password_hash'], current_password):
+        flash("The current administrator password is incorrect.", "danger")
+        return redirect(url_for('login'))
+
+    with get_db_cursor(commit=True) as cur:
+        cur.execute(
+            "UPDATE users SET password_hash = %s WHERE id = %s AND role = 'manager'",
+            (generate_password_hash(new_password), user['id']),
+        )
+
+    session.clear()
+    flash("Administrator password reset successfully. Please sign in with the new password.", "success")
+    return redirect(url_for('login'))
+
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()
