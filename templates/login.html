@@ -143,11 +143,11 @@
             </div>
             <div class="form-group">
                 <label class="form-label">New Password</label>
-                <input type="password" name="new_password" class="form-input" minlength="8" autocomplete="new-password" required>
+                <input type="password" name="new_password" class="form-input" minlength="8" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="At least 8 characters, one capital letter, one number, and one symbol" placeholder="Example: Sunflower#1" autocomplete="new-password" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Confirm New Password</label>
-                <input type="password" name="confirm_password" class="form-input" minlength="8" autocomplete="new-password" required>
+                <input type="password" name="confirm_password" class="form-input" minlength="8" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="At least 8 characters, one capital letter, one number, and one symbol" autocomplete="new-password" required>
             </div>
             <button type="submit" class="btn-submit">Reset Administrator Password</button>
             <small>Teachers cannot use this option and must be reset by an administrator.</small>

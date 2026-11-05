@@ -7,6 +7,7 @@ Channels: Dual SMS + Email (Africa's Talking SMS for Instant Alerts + SMTP / API
 
 import os
 import logging
+import re
 import secrets
 import smtplib
 import requests
@@ -40,6 +41,14 @@ EAT_TIMEZONE = ZoneInfo("Africa/Nairobi")
 
 def east_africa_time():
     return datetime.now(EAT_TIMEZONE)
+
+def password_meets_requirements(password):
+    return (
+        len(password) >= 8
+        and re.search(r'[A-Z]', password) is not None
+        and re.search(r'[0-9]', password) is not None
+        and re.search(r'[^A-Za-z0-9]', password) is not None
+    )
 
 app.config.update(
     SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true",
@@ -365,8 +374,8 @@ def reset_admin_password():
         flash("The new passwords do not match.", "warning")
         return redirect(url_for('login'))
 
-    if len(new_password) < 8:
-        flash("The new password must be at least 8 characters long.", "warning")
+    if not password_meets_requirements(new_password):
+        flash("Use at least 8 characters with a capital letter, a number, and a symbol such as _, comma, or #.", "warning")
         return redirect(url_for('login'))
 
     if current_password == new_password:
@@ -844,8 +853,8 @@ def add_teacher():
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '')
 
-    if len(password) < 8:
-        flash("Password must be at least 8 characters long.")
+    if not password_meets_requirements(password):
+        flash("Password must have 8+ characters, a capital letter, a number, and a symbol such as _, comma, or #.")
         return redirect(url_for('manager_dashboard'))
 
     pw_hash = generate_password_hash(password)
