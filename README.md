@@ -14,7 +14,7 @@ A Flask and PostgreSQL daycare management application for attendance, authorized
    pip install flask python-dotenv psycopg2-binary africastalking
    ```
 3. Copy your environment configuration into `.env` and set the database and notification credentials.
-4. Apply [schema.sql](schema.sql) to PostgreSQL.
+4. Apply [schema.sql](schema.sql) to a fresh PostgreSQL database. To add daily activity tracking to an existing database, apply [001_daily_logs.sql](migrations/001_daily_logs.sql).
 5. Run the application:
    ```bash
    python daycare.py

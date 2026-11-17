@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Daycare Administration & Safety Operations Hub</title>
     <!-- Google Fonts & Material Symbols -->
     <style>
@@ -126,6 +127,11 @@
         }
         .child-item:hover { transform: translateY(-1px); border-color: #cbd5e1; }
         .child-info-block { display: flex; align-items: center; gap: 12px; }
+        .child-item { flex-wrap: wrap; }
+        .daily-activity-form { flex: 1 0 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); }
+        .daily-activity-form label { display: inline-flex; align-items: center; gap: 5px; font-size: .78rem; font-weight: 600; }
+        .daily-activity-form input[type="text"] { flex: 1; min-width: 140px; padding: 7px 9px; border: 1px solid var(--border-color); border-radius: 7px; }
+        .activity-save-status { flex-basis: 100%; min-height: 1em; font-size: .75rem; color: var(--text-muted); }
         .avatar { width: 42px; height: 42px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Plus Jakarta Sans'; }
         .child-title { font-size: 0.95rem; font-weight: 700; color: var(--text-heading); font-family: 'Plus Jakarta Sans'; }
         
@@ -256,6 +262,7 @@
                 <div class="roster-list">
                     {% for child in children %}
                     <div class="child-item">
+                        {% set activity = daily_activities.get(child.id, {}) %}
                         <div class="child-info-block">
                             <div class="avatar">{{ child.first_name[0] }}{{ child.last_name[0] }}</div>
                             <div>
@@ -309,6 +316,14 @@
                                 <button type="submit" class="btn btn-alert">🚨 Alert</button>
                             </form>
                         </div>
+                        <form class="daily-activity-form" data-child-id="{{ child.id }}">
+                            <label><input type="checkbox" name="breakfast_eaten" {% if activity.get('breakfast_eaten') %}checked{% endif %}> Breakfast eaten</label>
+                            <label><input type="checkbox" name="lunch_eaten" {% if activity.get('lunch_eaten') %}checked{% endif %}> Lunch eaten</label>
+                            <label><input type="checkbox" name="diaper_changed" {% if activity.get('diaper_changed') %}checked{% endif %}> Diaper changed</label>
+                            <input type="text" name="diaper_notes" maxlength="1000" placeholder="Diaper notes" value="{{ activity.get('diaper_notes') or '' }}">
+                            <button type="submit" class="btn btn-checkin">Save daily activity</button>
+                            <span class="activity-save-status" aria-live="polite"></span>
+                        </form>
                     </div>
                     {% endfor %}
                 </div>
@@ -367,6 +382,34 @@ async function openPickupModal(childId,childName){
 function updatePickupPin(){const option=pickupGuardian.options[pickupGuardian.selectedIndex];document.getElementById('pickupPinGroup').style.display=option&&option.dataset.oneTime==='true'?'block':'none';}
 pickupGuardian.addEventListener('change',updatePickupPin);
 function closePickupModal(){pickupModal.style.display='none';}
+document.querySelectorAll('.daily-activity-form').forEach(form=>{
+    form.addEventListener('submit',async event=>{
+        event.preventDefault();
+        const status=form.querySelector('.activity-save-status');
+        const payload={
+            breakfast_eaten:form.elements.breakfast_eaten.checked,
+            lunch_eaten:form.elements.lunch_eaten.checked,
+            diaper_changed:form.elements.diaper_changed.checked,
+            diaper_notes:form.elements.diaper_notes.value
+        };
+        status.textContent='Saving…';
+        try{
+            const response=await fetch('/api/child/'+form.dataset.childId+'/update-activity',{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'X-CSRFToken':document.querySelector('meta[name="csrf-token"]').content
+                },
+                body:JSON.stringify(payload)
+            });
+            const result=await response.json();
+            if(!response.ok) throw new Error(result.error||'Could not save daily activity.');
+            status.textContent=result.message;
+        }catch(error){
+            status.textContent=error.message||'Could not save daily activity.';
+        }
+    });
+});
 </script>
 </body>
 </html>

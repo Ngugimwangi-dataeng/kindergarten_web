@@ -13,7 +13,7 @@ import smtplib
 import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from contextlib import contextmanager
 from functools import wraps
@@ -446,6 +446,13 @@ def manager_dashboard():
         """)
         children = cur.fetchall()
 
+        cur.execute("""
+            SELECT child_id, breakfast_eaten, lunch_eaten, diaper_changed, diaper_notes
+            FROM daily_logs
+            WHERE log_date = %s
+        """, (east_africa_time().date(),))
+        daily_activities = {row['child_id']: row for row in cur.fetchall()}
+
         # 2. Daily Care Activity Feed
         cur.execute("""
             SELECT l.*, c.first_name, c.last_name, c.room_name
@@ -467,6 +474,7 @@ def manager_dashboard():
     return render_template(
         'dashboard.html',
         children=children,
+        daily_activities=daily_activities,
         care_logs=care_logs,
         logs=logs,
         stats={'total': total, 'present': present, 'absent': absent},
@@ -487,6 +495,13 @@ def teacher_dashboard():
         """)
         children = cur.fetchall()
 
+        cur.execute("""
+            SELECT child_id, breakfast_eaten, lunch_eaten, diaper_changed, diaper_notes
+            FROM daily_logs
+            WHERE log_date = %s
+        """, (east_africa_time().date(),))
+        daily_activities = {row['child_id']: row for row in cur.fetchall()}
+
     total = len(children)
     present = sum(1 for c in children if c['current_status'] == 'Checked In')
     absent = total - present
@@ -494,9 +509,74 @@ def teacher_dashboard():
     return render_template(
         'teacher_dashboard.html',
         children=children,
+        daily_activities=daily_activities,
         stats={'total': total, 'present': present, 'absent': absent},
         username=session.get('user')
     )
+
+@app.route('/api/child/<int:child_id>/update-activity', methods=['POST'])
+@login_required
+def update_child_activity(child_id):
+    if not request.is_json:
+        return jsonify({'error': 'Expected a JSON request.'}), 400
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({'error': 'Request body must be a JSON object.'}), 400
+
+    log_date = data.get('log_date', east_africa_time().date().isoformat())
+    try:
+        log_date = date.fromisoformat(log_date)
+    except (TypeError, ValueError):
+        return jsonify({'error': 'log_date must use YYYY-MM-DD format.'}), 400
+    if data.get('log_date', log_date.isoformat()) != log_date.isoformat():
+        return jsonify({'error': 'log_date must use YYYY-MM-DD format.'}), 400
+
+    activity_fields = ('breakfast_eaten', 'lunch_eaten', 'diaper_changed')
+    if any(not isinstance(data.get(field, False), bool) for field in activity_fields):
+        return jsonify({'error': 'Meal and diaper values must be true or false.'}), 400
+
+    diaper_notes = data.get('diaper_notes', '')
+    if diaper_notes is None:
+        diaper_notes = ''
+    if not isinstance(diaper_notes, str):
+        return jsonify({'error': 'diaper_notes must be text.'}), 400
+
+    try:
+        with get_db_cursor(commit=True) as cur:
+            cur.execute("SELECT id FROM children WHERE id = %s", (child_id,))
+            if not cur.fetchone():
+                return jsonify({'error': 'Child not found.'}), 404
+
+            cur.execute("""
+                INSERT INTO daily_logs (
+                    child_id, log_date, breakfast_eaten, lunch_eaten,
+                    diaper_changed, diaper_notes, updated_at
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (child_id, log_date)
+                DO UPDATE SET
+                    breakfast_eaten = EXCLUDED.breakfast_eaten,
+                    lunch_eaten = EXCLUDED.lunch_eaten,
+                    diaper_changed = EXCLUDED.diaper_changed,
+                    diaper_notes = EXCLUDED.diaper_notes,
+                    updated_at = CURRENT_TIMESTAMP
+            """, (
+                child_id,
+                log_date,
+                data.get('breakfast_eaten', False),
+                data.get('lunch_eaten', False),
+                data.get('diaper_changed', False),
+                diaper_notes,
+            ))
+    except Exception:
+        app.logger.exception("Could not update daily activity for child %s", child_id)
+        return jsonify({'error': 'Could not save the child activity.'}), 500
+
+    return jsonify({
+        'success': True,
+        'message': 'Child daily activity updated successfully.',
+    })
 
 # Attendance Status Toggle & Express Actions (Dual SMS + Email Notification)
 @app.route('/update-status', methods=['POST'])

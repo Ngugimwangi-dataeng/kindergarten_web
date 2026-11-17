@@ -467,6 +467,18 @@ ALTER TABLE ONLY public.daily_care_logs
 ALTER TABLE ONLY public.message_logs
     ADD CONSTRAINT message_logs_child_id_fkey FOREIGN KEY (child_id) REFERENCES public.children(id) ON DELETE SET NULL;
 
+CREATE TABLE IF NOT EXISTS public.daily_logs (
+    id SERIAL PRIMARY KEY,
+    child_id integer NOT NULL REFERENCES public.children(id) ON DELETE CASCADE,
+    log_date date NOT NULL DEFAULT CURRENT_DATE,
+    breakfast_eaten boolean DEFAULT false,
+    lunch_eaten boolean DEFAULT false,
+    diaper_changed boolean DEFAULT false,
+    diaper_notes text DEFAULT NULL,
+    updated_at timestamp DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (child_id, log_date)
+);
+
 
 --
 -- PostgreSQL database dump complete
