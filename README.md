@@ -13,8 +13,8 @@ A Flask and PostgreSQL daycare management application for attendance, authorized
    ```bash
    pip install flask python-dotenv psycopg2-binary africastalking
    ```
-3. Copy your environment configuration into `.env` and set the database and notification credentials.
-4. Apply [schema.sql](schema.sql) to a fresh PostgreSQL database. To add daily activity tracking to an existing database, apply [001_daily_logs.sql](migrations/001_daily_logs.sql).
+3. Set `DATABASE_URL` and notification credentials in your local `.env` file. For Neon, use the connection string from your Neon dashboard, including its SSL options.
+4. Apply [schema.sql](schema.sql) to your PostgreSQL database.
 5. Run the application:
    ```bash
    python daycare.py

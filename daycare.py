@@ -99,16 +99,9 @@ def add_security_headers(response):
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_db_connection():
-    if DATABASE_URL:
-        return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        database=os.getenv("DB_NAME", "daycare"),
-        user=os.getenv("DB_USER", "postgres"),
-        password=os.getenv("DB_PASSWORD", "postgres"),
-        port=os.getenv("DB_PORT", 5434),
-        cursor_factory=RealDictCursor
-    )
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL is not configured. Set it in the environment or local .env file.")
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
 @contextmanager
 def get_db_cursor(commit=False):
