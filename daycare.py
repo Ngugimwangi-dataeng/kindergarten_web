@@ -11,6 +11,7 @@ import re
 import secrets
 import smtplib
 import requests
+from html import escape
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import date, datetime, timezone, timedelta
@@ -302,6 +303,36 @@ def dispatch_parent_notification(child, subject, message_text, message_html=None
         email_res = dispatch_email(email, subject, message_text, body_html=message_html, child_id=child_id, first_name=first, last_name=last)
 
     return {"sms": sms_res, "email": email_res}
+
+def format_daily_activity_report(activity):
+    """Build SMS and HTML summaries from today's saved meal and diaper activity."""
+    if not activity:
+        return (
+            "Daily care report: Breakfast - not recorded; Lunch - not recorded; "
+            "Diaper changed - not recorded; Diaper notes - none.",
+            "<p><strong>Daily care report:</strong> Breakfast: not recorded; "
+            "Lunch: not recorded; Diaper changed: not recorded; Diaper notes: none.</p>",
+        )
+
+    breakfast = "Yes" if activity.get('breakfast_eaten') else "No"
+    lunch = "Yes" if activity.get('lunch_eaten') else "No"
+    diaper = "Yes" if activity.get('diaper_changed') else "No"
+    diaper_notes = (activity.get('diaper_notes') or '').strip() or "None"
+
+    sms_text = (
+        f"Daily care report: Breakfast - {breakfast}; Lunch - {lunch}; "
+        f"Diaper changed - {diaper}; Diaper notes - {diaper_notes}"
+    )
+    html_text = (
+        "<p><strong>Daily care report</strong></p>"
+        "<ul>"
+        f"<li>Breakfast eaten: {escape(breakfast)}</li>"
+        f"<li>Lunch eaten: {escape(lunch)}</li>"
+        f"<li>Diaper changed: {escape(diaper)}</li>"
+        f"<li>Diaper notes: {escape(diaper_notes)}</li>"
+        "</ul>"
+    )
+    return sms_text, html_text
 
 # Authentication Decorators
 def login_required(f):
@@ -599,9 +630,36 @@ def update_status():
             VALUES (%s, %s, %s)
         """, (child_id, 'CHECK_IN' if new_status == 'Checked In' else 'CHECK_OUT', teacher))
 
+        daily_activity = None
+        if new_status == 'Checked In':
+            cur.execute("""
+                INSERT INTO daily_logs (
+                    child_id, log_date, breakfast_eaten, lunch_eaten,
+                    diaper_changed, diaper_notes, updated_at
+                )
+                VALUES (%s, %s, FALSE, FALSE, FALSE, '', CURRENT_TIMESTAMP)
+                ON CONFLICT (child_id, log_date)
+                DO UPDATE SET
+                    breakfast_eaten = FALSE,
+                    lunch_eaten = FALSE,
+                    diaper_changed = FALSE,
+                    diaper_notes = '',
+                    updated_at = CURRENT_TIMESTAMP
+            """, (child_id, east_africa_time().date()))
+        else:
+            cur.execute("""
+                SELECT breakfast_eaten, lunch_eaten, diaper_changed, diaper_notes
+                FROM daily_logs
+                WHERE child_id = %s AND log_date = %s
+            """, (child_id, east_africa_time().date()))
+            daily_activity = cur.fetchone()
+
     if child:
         subject = f"Attendance Update: {child['first_name']} marked {new_status}"
         msg_text = f"Sunflower Academy: {child['first_name']} {child['last_name']} was safely marked {new_status} at {now_str} by {teacher}."
+        if new_status == 'Checked Out':
+            daily_sms, _ = format_daily_activity_report(daily_activity)
+            msg_text = f"{msg_text} {daily_sms}"
         msg_html = f"""
         <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
             <h2 style="color: #0f4c81; margin-top:0;">Sunflower Daycare Academy</h2>
@@ -612,6 +670,7 @@ def update_status():
                 at <strong>{now_str}</strong>.
             </p>
             <p style="font-size: 13px; color: #64748b;">Witnessed & Logged by Educator: {teacher}</p>
+            {format_daily_activity_report(daily_activity)[1] if new_status == 'Checked Out' else ''}
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 15px 0;">
             <p style="font-size: 11px; color: #94a3b8;">Sunflower Academy Attendance & Safety Notification Service</p>
         </div>
@@ -693,9 +752,18 @@ def verify_pickup_checkout():
         if one_time:
             cur.execute("UPDATE authorized_guardians SET pickup_used_at = CURRENT_TIMESTAMP WHERE id = %s", (guardian_id,))
 
+        cur.execute("""
+            SELECT breakfast_eaten, lunch_eaten, diaper_changed, diaper_notes
+            FROM daily_logs
+            WHERE child_id = %s AND log_date = %s
+        """, (child_id, east_africa_time().date()))
+        daily_activity = cur.fetchone()
+
     if child:
         subject = f"Safe Pickup Confirmation: {child['first_name']} Handed Off"
         msg_text = f"Sunflower Academy: {child['first_name']} was safely checked out at {now_str} by verified guardian {guardian_name}. Staff witness: {teacher}."
+        daily_sms, daily_html = format_daily_activity_report(daily_activity)
+        msg_text = f"{msg_text} {daily_sms}"
         msg_html = f"""
         <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
             <h2 style="color: #0f4c81; margin-top:0;">Pickup Hand-off Confirmation</h2>
@@ -707,6 +775,7 @@ def verify_pickup_checkout():
                 <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;"><strong>Staff Witness:</strong> {teacher}</p>
                 {f'<p style="margin: 4px 0 0; font-size: 13px; color: #64748b;"><strong>Notes:</strong> {departure_notes}</p>' if departure_notes else ''}
             </div>
+            {daily_html}
             <p style="font-size: 11px; color: #94a3b8;">Official Chain-of-Custody Verification Record</p>
         </div>
         """

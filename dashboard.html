@@ -342,26 +342,29 @@
             </section>
         </div>
 
-        <!-- Temporary authorized pickup access -->
-        <section class="form-section" id="oneTimePickupSection">
-            <h3 style="margin-top:0;font-size:1.1rem;color:var(--text-heading);">🔐 One-Time Authorized Pickup</h3>
-            <form action="{{ url_for('authorize_one_time_pickup') }}" method="POST">
+        <!-- Administrative Forms: Onboard with Dual SMS + Email Fields -->
+        <section class="form-section" id="onboardSection">
+            <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-heading);">👶 Onboard a New Family (Dual SMS + Email Enrollment)</h3>
+            <form action="/add-family" method="POST">
+                <div class="form-grid-3">
+                    <input type="text" name="child_first" placeholder="Child First Name" required class="form-control">
+                    <input type="text" name="child_last" placeholder="Child Last Name" required class="form-control">
+                    <input type="text" name="room_name" placeholder="Classroom (e.g. Toddler Room B)" value="Toddler Room B" class="form-control">
+                </div>
                 <div class="form-grid-4">
-                    <select name="child_id" required class="form-control"><option value="">Select child</option>{% for child in children %}<option value="{{ child.id }}">{{ child.first_name }} {{ child.last_name }}</option>{% endfor %}</select>
-                    <input type="text" name="full_name" placeholder="Guardian full name" required class="form-control">
-                    <input type="text" name="relationship" placeholder="Relationship" required class="form-control">
-                    <input type="tel" name="phone_number" placeholder="Guardian phone (+254...)" required class="form-control">
+                    <input type="text" name="parent_first" placeholder="Parent First Name" required class="form-control">
+                    <input type="text" name="parent_last" placeholder="Parent Last Name" required class="form-control">
+                    <input type="text" name="parent_phone" placeholder="Parent Phone (+254... for SMS)" required class="form-control">
+                    <input type="email" name="parent_email" placeholder="Parent Email (e.g. parent@gmail.com)" required class="form-control">
                 </div>
-                <div class="form-grid-4" style="margin-top:12px;">
-                    <input type="email" name="email" placeholder="Guardian email (optional)" class="form-control">
-                    <select name="government_id_type" class="form-control"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driver License">Driver License</option></select>
-                    <input type="text" name="national_id_number" placeholder="National ID number" required class="form-control">
-                    <input type="url" name="photo_url" placeholder="Guardian photo URL (optional)" class="form-control">
-                </div>
-                <div class="form-grid-3" style="margin-top:12px;">
-                    <textarea name="notes" rows="2" placeholder="Verification notes or special instructions" class="form-control"></textarea>
-                    <select name="valid_hours" class="form-control"><option value="24">Valid 24 hours</option><option value="12">Valid 12 hours</option><option value="6">Valid 6 hours</option><option value="2">Valid 2 hours</option></select>
-                    <button type="submit" class="btn btn-checkin">Create One-Time Pickup</button>
+                <div class="form-grid-3">
+                    <input type="text" name="allergy_info" placeholder="Medical / Allergy Notes (Optional)" class="form-control">
+                    <select name="preferred_channel" class="form-control" style="font-weight:600;">
+                        <option value="Both">Preferred Channel: Both SMS & Email (Recommended)</option>
+                        <option value="SMS">Preferred Channel: SMS Only (Africa's Talking)</option>
+                        <option value="Email">Preferred Channel: Email Only (Free / SMTP)</option>
+                    </select>
+                    <button type="submit" class="btn btn-checkin" style="padding:10px;">Save & Enroll Family</button>
                 </div>
             </form>
         </section>
@@ -390,29 +393,26 @@
             </form>
         </section>
 
-        <!-- Administrative Forms: Onboard with Dual SMS + Email Fields -->
-        <section class="form-section" id="onboardSection">
-            <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-heading);">👶 Onboard a New Family (Dual SMS + Email Enrollment)</h3>
-            <form action="/add-family" method="POST">
-                <div class="form-grid-3">
-                    <input type="text" name="child_first" placeholder="Child First Name" required class="form-control">
-                    <input type="text" name="child_last" placeholder="Child Last Name" required class="form-control">
-                    <input type="text" name="room_name" placeholder="Classroom (e.g. Toddler Room B)" value="Toddler Room B" class="form-control">
-                </div>
+        <!-- Temporary authorized pickup access -->
+        <section class="form-section" id="oneTimePickupSection">
+            <h3 style="margin-top:0;font-size:1.1rem;color:var(--text-heading);">🔐 One-Time Authorized Pickup</h3>
+            <form action="{{ url_for('authorize_one_time_pickup') }}" method="POST">
                 <div class="form-grid-4">
-                    <input type="text" name="parent_first" placeholder="Parent First Name" required class="form-control">
-                    <input type="text" name="parent_last" placeholder="Parent Last Name" required class="form-control">
-                    <input type="text" name="parent_phone" placeholder="Parent Phone (+254... for SMS)" required class="form-control">
-                    <input type="email" name="parent_email" placeholder="Parent Email (e.g. parent@gmail.com)" required class="form-control">
+                    <select name="child_id" required class="form-control"><option value="">Select child</option>{% for child in children %}<option value="{{ child.id }}">{{ child.first_name }} {{ child.last_name }}</option>{% endfor %}</select>
+                    <input type="text" name="full_name" placeholder="Guardian full name" required class="form-control">
+                    <input type="text" name="relationship" placeholder="Relationship" required class="form-control">
+                    <input type="tel" name="phone_number" placeholder="Guardian phone (+254...)" required class="form-control">
                 </div>
-                <div class="form-grid-3">
-                    <input type="text" name="allergy_info" placeholder="Medical / Allergy Notes (Optional)" class="form-control">
-                    <select name="preferred_channel" class="form-control" style="font-weight:600;">
-                        <option value="Both">Preferred Channel: Both SMS & Email (Recommended)</option>
-                        <option value="SMS">Preferred Channel: SMS Only (Africa's Talking)</option>
-                        <option value="Email">Preferred Channel: Email Only (Free / SMTP)</option>
-                    </select>
-                    <button type="submit" class="btn btn-checkin" style="padding:10px;">Save & Enroll Family</button>
+                <div class="form-grid-4" style="margin-top:12px;">
+                    <input type="email" name="email" placeholder="Guardian email (optional)" class="form-control">
+                    <select name="government_id_type" class="form-control"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driver License">Driver License</option></select>
+                    <input type="text" name="national_id_number" placeholder="National ID number" required class="form-control">
+                    <input type="url" name="photo_url" placeholder="Guardian photo URL (optional)" class="form-control">
+                </div>
+                <div class="form-grid-3" style="margin-top:12px;">
+                    <textarea name="notes" rows="2" placeholder="Verification notes or special instructions" class="form-control"></textarea>
+                    <select name="valid_hours" class="form-control"><option value="24">Valid 24 hours</option><option value="12">Valid 12 hours</option><option value="6">Valid 6 hours</option><option value="2">Valid 2 hours</option></select>
+                    <button type="submit" class="btn btn-checkin">Create One-Time Pickup</button>
                 </div>
             </form>
         </section>
