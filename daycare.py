@@ -43,6 +43,18 @@ EAT_TIMEZONE = ZoneInfo("Africa/Nairobi")
 def east_africa_time():
     return datetime.now(EAT_TIMEZONE)
 
+def format_eat_time(value, include_timezone=False):
+    if not value:
+        return ''
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=EAT_TIMEZONE)
+    else:
+        value = value.astimezone(EAT_TIMEZONE)
+    formatted = value.strftime('%b %d, %I:%M %p')
+    return f"{formatted} EAT" if include_timezone else formatted
+
+app.jinja_env.filters['eat_time'] = format_eat_time
+
 def password_meets_requirements(password):
     return (
         len(password) >= 8

@@ -453,7 +453,7 @@
                             {% endif %}
                         </strong>
                         <span style="font-size:0.7rem; color:#64748b;">
-                            {{ log.received_at.strftime('%b %d, %I:%M %p') }} • 
+                            {{ log.received_at|eat_time(true) }} •
                             <span style="color:#059669; font-weight:700;">{{ log.delivery_status }}</span>
                         </span>
                     </div>
